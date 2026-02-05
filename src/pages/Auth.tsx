@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -103,9 +103,13 @@ const Auth = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-4">
-            <GraduationCap className="w-8 h-8 text-primary-foreground" />
+            <Link to="/" className="flex items-center justify-center w-full h-full">
+              <GraduationCap className="w-8 h-8 text-primary-foreground" />
+            </Link>
           </div>
-          <CardTitle className="text-2xl font-bold">In School</CardTitle>
+          <Link to="/" className="hover:opacity-80 transition-opacity">
+            <CardTitle className="text-2xl font-bold cursor-pointer">In School</CardTitle>
+          </Link>
           <CardDescription>Educational platform for kids aged 6-18</CardDescription>
         </CardHeader>
         <CardContent>
