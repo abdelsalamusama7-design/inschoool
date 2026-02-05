@@ -23,7 +23,7 @@ const TestimonialsSection = () => {
   ];
 
   return (
-    <section className="py-20">
+    <section id="testimonials" className="py-20">
       <div className="container mx-auto">
         <h2 className="mb-12 text-center text-3xl font-bold md:text-4xl">
           ماذا يقول <span className="text-secondary">أولياء الأمور</span>

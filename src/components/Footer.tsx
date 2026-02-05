@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { GraduationCap, MapPin, Phone, Mail } from "lucide-react";
 
 const Footer = () => {
@@ -27,7 +28,7 @@ const Footer = () => {
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div>
-            <a href="#" className="mb-6 flex items-center gap-2">
+            <Link to="/" className="mb-6 flex items-center gap-2">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary">
                 <GraduationCap className="h-6 w-6 text-primary-foreground" />
               </div>
@@ -35,7 +36,7 @@ const Footer = () => {
                 <span className="text-secondary">In</span>
                 <span className="text-primary">School</span>
               </span>
-            </a>
+            </Link>
             <p className="mb-6 text-muted-foreground">
               نبني قادة التكنولوجيا في الغد من خلال تعليم البرمجة للأطفال والشباب
             </p>
