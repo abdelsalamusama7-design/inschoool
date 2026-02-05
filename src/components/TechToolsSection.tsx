@@ -22,7 +22,7 @@ const TechToolsSection = () => {
   ];
 
   return (
-    <section className="bg-muted/50 py-16">
+    <section id="features" className="bg-muted/50 py-16">
       <div className="container mx-auto">
         <h2 className="mb-12 text-center text-2xl font-bold text-foreground md:text-3xl">
           <span className="text-secondary">+48</span> أداة تقنية احترافية في منهج واحد

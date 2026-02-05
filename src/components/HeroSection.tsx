@@ -1,7 +1,10 @@
+import { useNavigate } from "react-router-dom";
 import { CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const HeroSection = () => {
+  const navigate = useNavigate();
+
   const features = [
     "حصص برمجة مباشرة 1:1 أونلاين للصفوف من 1 إلى 12",
     "منهج معتمد قائم على مشاريع حقيقية",
@@ -43,7 +46,7 @@ const HeroSection = () => {
             </div>
 
             <div className="flex flex-wrap gap-4">
-              <Button size="lg" className="gradient-orange text-lg">
+              <Button size="lg" className="gradient-orange text-lg" onClick={() => navigate('/auth')}>
                 احجز جلسة مجانية
               </Button>
               <Button size="lg" variant="outline" className="text-lg">

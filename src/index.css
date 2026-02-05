@@ -44,6 +44,13 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217 91% 60%;
+
+    --blue-light: 210 100% 96%;
+    --blue-medium: 217 91% 60%;
+    --blue-dark: 217 91% 45%;
+    --orange: 32 100% 50%;
+    --orange-light: 32 100% 95%;
+    --green-whatsapp: 142 70% 45%;
   }
 
   .dark {

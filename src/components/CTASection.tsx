@@ -1,7 +1,10 @@
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 
 const CTASection = () => {
+  const navigate = useNavigate();
+
   return (
     <section className="py-20">
       <div className="container mx-auto">
@@ -17,7 +20,7 @@ const CTASection = () => {
             <p className="mx-auto mb-8 max-w-2xl text-lg text-primary-foreground/90">
               احجز جلسة تجريبية مجانية واكتشف كيف يمكن لـ In School أن يساعد طفلك في بناء مستقبله التقني
             </p>
-            <Button size="lg" className="gradient-orange gap-2 text-lg">
+            <Button size="lg" className="gradient-orange gap-2 text-lg" onClick={() => navigate('/auth')}>
               احجز جلسة مجانية الآن
               <ArrowLeft className="h-5 w-5" />
             </Button>
