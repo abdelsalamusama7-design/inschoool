@@ -6,7 +6,8 @@ import {
   Blocks, 
   Globe, 
   Palette, 
-  Box 
+  Box,
+  BookOpen
 } from "lucide-react";
 
 const TechToolsSection = () => {
@@ -19,6 +20,7 @@ const TechToolsSection = () => {
     { icon: Blocks, name: "ماينكرافت", color: "bg-orange-light text-secondary" },
     { icon: Globe, name: "تطوير المواقع", color: "bg-blue-light text-primary" },
     { icon: Palette, name: "واجهة المستخدم (UI & UX)", color: "bg-orange-light text-secondary" },
+    { icon: BookOpen, name: "تحفيظ القرآن الكريم", color: "bg-blue-light text-primary" },
   ];
 
   return (
