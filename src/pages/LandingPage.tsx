@@ -6,6 +6,7 @@ import HeroSection from '@/components/HeroSection';
 import TechToolsSection from '@/components/TechToolsSection';
 import WhySection from '@/components/WhySection';
 import StatsSection from '@/components/StatsSection';
+import PricingSection from '@/components/PricingSection';
 import TestimonialsSection from '@/components/TestimonialsSection';
 import CTASection from '@/components/CTASection';
 import Footer from '@/components/Footer';
@@ -37,6 +38,7 @@ const LandingPage = () => {
         <TechToolsSection />
         <WhySection />
         <StatsSection />
+        <PricingSection />
         <TestimonialsSection />
         <CTASection />
       </main>
