@@ -11,6 +11,8 @@ import Dashboard from "./pages/Dashboard";
 import CoursesPage from "./pages/CoursesPage";
 import CreateCoursePage from "./pages/CreateCoursePage";
 import CourseDetailPage from "./pages/CourseDetailPage";
+import SubscriptionPage from "./pages/SubscriptionPage";
+import AdminSubscriptionsPage from "./pages/AdminSubscriptionsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -54,6 +56,22 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <CourseDetailPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/subscription"
+              element={
+                <ProtectedRoute allowedRoles={['student']}>
+                  <SubscriptionPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin/subscriptions"
+              element={
+                <ProtectedRoute allowedRoles={['instructor']}>
+                  <AdminSubscriptionsPage />
                 </ProtectedRoute>
               }
             />

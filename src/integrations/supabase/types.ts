@@ -117,6 +117,69 @@ export type Database = {
           },
         ]
       }
+      payment_requests: {
+        Row: {
+          admin_notes: string | null
+          amount: number
+          created_at: string
+          id: string
+          payment_method: string
+          plan_id: string
+          reference_number: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          screenshot_url: string | null
+          status: string
+          subscription_id: string | null
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount: number
+          created_at?: string
+          id?: string
+          payment_method: string
+          plan_id: string
+          reference_number?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          screenshot_url?: string | null
+          status?: string
+          subscription_id?: string | null
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          amount?: number
+          created_at?: string
+          id?: string
+          payment_method?: string
+          plan_id?: string
+          reference_number?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          screenshot_url?: string | null
+          status?: string
+          subscription_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_requests_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_requests_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -240,6 +303,86 @@ export type Database = {
           student_id?: string
         }
         Relationships: []
+      }
+      subscription_plans: {
+        Row: {
+          created_at: string
+          currency: string
+          duration_days: number
+          features: Json | null
+          id: string
+          is_active: boolean | null
+          max_lessons: number | null
+          name: string
+          name_ar: string
+          price: number
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          duration_days?: number
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          max_lessons?: number | null
+          name: string
+          name_ar: string
+          price?: number
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          duration_days?: number
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          max_lessons?: number | null
+          name?: string
+          name_ar?: string
+          price?: number
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          plan_id: string
+          starts_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          plan_id: string
+          starts_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          plan_id?: string
+          starts_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
