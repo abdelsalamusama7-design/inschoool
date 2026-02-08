@@ -27,6 +27,8 @@ import {
   Home,
   Plus,
   List,
+  Crown,
+  CreditCard,
 } from 'lucide-react';
 
 interface DashboardLayoutProps {
@@ -51,6 +53,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       return [
         ...baseItems,
         { title: 'My Courses', icon: BookOpen, url: '/dashboard/courses' },
+        { title: 'Subscription', icon: Crown, url: '/dashboard/subscription' },
         { title: 'Schedule', icon: Calendar, url: '/dashboard/schedule' },
         { title: 'Progress', icon: BarChart3, url: '/dashboard/progress' },
       ];
@@ -71,6 +74,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         { title: 'Create Course', icon: Plus, url: '/dashboard/courses/new' },
         { title: 'Lessons', icon: List, url: '/dashboard/lessons' },
         { title: 'Students', icon: Users, url: '/dashboard/students' },
+        { title: 'Subscriptions', icon: CreditCard, url: '/dashboard/admin/subscriptions' },
         { title: 'Schedule', icon: Calendar, url: '/dashboard/schedule' },
       ];
     }

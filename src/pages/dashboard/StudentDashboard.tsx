@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { BookOpen, CheckCircle, Clock, GraduationCap } from 'lucide-react';
+import SubscriptionStatus from '@/components/dashboard/SubscriptionStatus';
 
 interface Course {
   id: string;
@@ -101,6 +102,7 @@ const StudentDashboard = () => {
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
+        <SubscriptionStatus />
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Enrolled Courses</CardTitle>

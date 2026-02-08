@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { ArrowLeft, Plus, FileText, Trash2, Edit } from 'lucide-react';
+import { ArrowLeft, Plus, FileText, Trash2, Lock, Crown } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Course {
@@ -36,6 +36,8 @@ const CourseDetail = () => {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
+  const [maxLessons, setMaxLessons] = useState<number | null>(null);
   
   // New lesson form
   const [lessonTitle, setLessonTitle] = useState('');
@@ -47,8 +49,33 @@ const CourseDetail = () => {
   useEffect(() => {
     if (id) {
       fetchCourse();
+      if (role === 'student' && user) {
+        checkSubscription();
+      } else {
+        setHasActiveSubscription(true); // instructors/parents always have access
+      }
     }
-  }, [id]);
+  }, [id, user, role]);
+
+  const checkSubscription = async () => {
+    try {
+      const { data } = await supabase
+        .from('subscriptions')
+        .select(`status, subscription_plans (max_lessons)`)
+        .eq('user_id', user!.id)
+        .in('status', ['active'])
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (data) {
+        setHasActiveSubscription(true);
+        setMaxLessons((data as any).subscription_plans?.max_lessons || null);
+      }
+    } catch {
+      setHasActiveSubscription(false);
+    }
+  };
 
   const fetchCourse = async () => {
     try {
@@ -232,34 +259,57 @@ const CourseDetail = () => {
             </div>
           ) : (
             <div className="space-y-3">
-              {lessons.map((lesson, index) => (
-                <div
-                  key={lesson.id}
-                  className="flex items-center justify-between p-4 bg-muted/50 rounded-lg"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-8 h-8 bg-primary/10 text-primary rounded-full flex items-center justify-center font-semibold">
-                      {index + 1}
-                    </div>
+              {!hasActiveSubscription && role === 'student' && (
+                <div className="p-4 bg-yellow-500/10 border border-yellow-200 rounded-lg flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Crown className="w-5 h-5 text-yellow-600" />
                     <div>
-                      <h4 className="font-medium">{lesson.title}</h4>
-                      {lesson.description && (
-                        <p className="text-sm text-muted-foreground">{lesson.description}</p>
-                      )}
+                      <p className="font-medium text-yellow-800">اشترك للوصول لجميع الدروس</p>
+                      <p className="text-sm text-yellow-600">بعض الدروس مقفلة. اشترك لفتحها.</p>
                     </div>
                   </div>
-                  {isInstructor && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-destructive hover:text-destructive"
-                      onClick={() => handleDeleteLesson(lesson.id)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  )}
+                  <Button size="sm" onClick={() => navigate('/dashboard/subscription')}>
+                    اشترك الآن
+                  </Button>
                 </div>
-              ))}
+              )}
+              {lessons.map((lesson, index) => {
+                const isLocked = role === 'student' && !hasActiveSubscription && index >= 1;
+                const isLimitReached = role === 'student' && maxLessons !== null && index >= maxLessons;
+                const locked = isLocked || isLimitReached;
+
+                return (
+                  <div
+                    key={lesson.id}
+                    className={`flex items-center justify-between p-4 rounded-lg ${locked ? 'bg-muted/30 opacity-60' : 'bg-muted/50'}`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold ${locked ? 'bg-muted text-muted-foreground' : 'bg-primary/10 text-primary'}`}>
+                        {locked ? <Lock className="w-4 h-4" /> : index + 1}
+                      </div>
+                      <div>
+                        <h4 className="font-medium">{lesson.title}</h4>
+                        {lesson.description && (
+                          <p className="text-sm text-muted-foreground">{lesson.description}</p>
+                        )}
+                        {locked && (
+                          <p className="text-xs text-muted-foreground mt-1">🔒 يتطلب اشتراك</p>
+                        )}
+                      </div>
+                    </div>
+                    {isInstructor && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => handleDeleteLesson(lesson.id)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
         </CardContent>
