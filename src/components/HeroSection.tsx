@@ -46,8 +46,10 @@ const HeroSection = () => {
             </div>
 
             <div className="flex flex-wrap gap-4">
-              <Button size="lg" className="gradient-orange text-lg" onClick={() => navigate('/auth')}>
-                احجز جلسة مجانية
+              <Button size="lg" className="gradient-orange text-lg" asChild>
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLScMCHcf05VturMfaIkoCx_cvRZ3YpuBws5pMFdgklog0mUMpA/viewform?usp=header" target="_blank" rel="noopener noreferrer">
+                  احجز جلسة مجانية
+                </a>
               </Button>
               <Button size="lg" variant="outline" className="text-lg">
                 اعرف المزيد

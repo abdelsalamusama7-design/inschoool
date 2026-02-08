@@ -46,8 +46,10 @@ const Navbar = () => {
             <Button variant="outline" size="sm" onClick={() => navigate('/auth')}>
               تسجيل الدخول
             </Button>
-            <Button size="sm" className="gradient-orange" onClick={() => navigate('/auth')}>
-              احجز جلسة مجانية
+            <Button size="sm" className="gradient-orange" asChild>
+              <a href="https://docs.google.com/forms/d/e/1FAIpQLScMCHcf05VturMfaIkoCx_cvRZ3YpuBws5pMFdgklog0mUMpA/viewform?usp=header" target="_blank" rel="noopener noreferrer">
+                احجز جلسة مجانية
+              </a>
             </Button>
           </div>
 
@@ -79,8 +81,10 @@ const Navbar = () => {
                 <Button variant="outline" size="sm" onClick={() => navigate('/auth')}>
                   تسجيل الدخول
                 </Button>
-                <Button size="sm" className="gradient-orange" onClick={() => navigate('/auth')}>
-                  احجز جلسة مجانية
+                <Button size="sm" className="gradient-orange" asChild>
+                  <a href="https://docs.google.com/forms/d/e/1FAIpQLScMCHcf05VturMfaIkoCx_cvRZ3YpuBws5pMFdgklog0mUMpA/viewform?usp=header" target="_blank" rel="noopener noreferrer">
+                    احجز جلسة مجانية
+                  </a>
                 </Button>
               </div>
             </div>
