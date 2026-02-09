@@ -1,6 +1,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import StudentCourses from './dashboard/StudentCourses';
+import InstructorCourses from './dashboard/InstructorCourses';
 
 const CoursesPage = () => {
   const { role, loading } = useAuth();
@@ -15,10 +16,10 @@ const CoursesPage = () => {
 
   return (
     <DashboardLayout>
-      {role === 'student' ? (
-        <StudentCourses />
+      {role === 'instructor' ? (
+        <InstructorCourses />
       ) : (
-        <div>Course management coming soon</div>
+        <StudentCourses />
       )}
     </DashboardLayout>
   );

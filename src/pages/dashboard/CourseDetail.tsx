@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { ArrowLeft, Plus, FileText, Trash2, Lock, Crown } from 'lucide-react';
+import { ArrowLeft, Plus, FileText, Trash2, Lock, Crown, Upload, Download, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Course {
@@ -27,6 +27,14 @@ interface Lesson {
   video_url: string;
   order_index: number;
 }
+interface CourseMaterial {
+  id: string;
+  file_name: string;
+  file_url: string;
+  file_type: string | null;
+  file_size: number | null;
+  created_at: string;
+}
 
 const CourseDetail = () => {
   const { id } = useParams();
@@ -34,10 +42,12 @@ const CourseDetail = () => {
   const navigate = useNavigate();
   const [course, setCourse] = useState<Course | null>(null);
   const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [materials, setMaterials] = useState<CourseMaterial[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   const [maxLessons, setMaxLessons] = useState<number | null>(null);
+  const [uploadingMaterial, setUploadingMaterial] = useState(false);
   
   // New lesson form
   const [lessonTitle, setLessonTitle] = useState('');
@@ -88,15 +98,21 @@ const CourseDetail = () => {
       if (courseData) {
         setCourse(courseData);
 
-        const { data: lessonsData } = await supabase
-          .from('lessons')
-          .select('*')
-          .eq('course_id', id)
-          .order('order_index', { ascending: true });
+        const [lessonsRes, materialsRes] = await Promise.all([
+          supabase
+            .from('lessons')
+            .select('*')
+            .eq('course_id', id!)
+            .order('order_index', { ascending: true }),
+          supabase
+            .from('course_materials')
+            .select('*')
+            .eq('course_id', id!)
+            .order('created_at', { ascending: false }),
+        ]);
 
-        if (lessonsData) {
-          setLessons(lessonsData);
-        }
+        if (lessonsRes.data) setLessons(lessonsRes.data);
+        if (materialsRes.data) setMaterials(materialsRes.data);
       }
     } catch (error) {
       console.error('Error fetching course:', error);
@@ -158,6 +174,61 @@ const CourseDetail = () => {
       console.error('Error deleting lesson:', error);
       toast.error('Failed to delete lesson');
     }
+  };
+
+  const handleUploadMaterial = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || !user || !id) return;
+
+    setUploadingMaterial(true);
+    try {
+      for (const file of Array.from(files)) {
+        const filePath = `materials/${id}/${Date.now()}_${file.name}`;
+        const { error: uploadError } = await supabase.storage
+          .from('course-materials')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage
+          .from('course-materials')
+          .getPublicUrl(filePath);
+
+        await supabase.from('course_materials').insert({
+          course_id: id,
+          file_name: file.name,
+          file_url: urlData.publicUrl,
+          file_type: file.type,
+          file_size: file.size,
+          uploaded_by: user.id,
+        });
+      }
+
+      toast.success('Materials uploaded!');
+      fetchCourse();
+    } catch (error: any) {
+      toast.error('Upload failed: ' + error.message);
+    } finally {
+      setUploadingMaterial(false);
+    }
+  };
+
+  const handleDeleteMaterial = async (materialId: string) => {
+    try {
+      const { error } = await supabase.from('course_materials').delete().eq('id', materialId);
+      if (error) throw error;
+      toast.success('Material deleted');
+      fetchCourse();
+    } catch (error: any) {
+      toast.error('Failed to delete material');
+    }
+  };
+
+  const formatFileSize = (bytes: number | null) => {
+    if (!bytes) return '';
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1048576) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / 1048576).toFixed(1)} MB`;
   };
 
   if (loading) {
@@ -310,6 +381,82 @@ const CourseDetail = () => {
                   </div>
                 );
               })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Course Materials */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Course Materials</CardTitle>
+              <CardDescription>{materials.length} files uploaded</CardDescription>
+            </div>
+            {isInstructor && (
+              <div>
+                <input
+                  id="material-upload-detail"
+                  type="file"
+                  multiple
+                  accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.jpg,.jpeg,.png,.gif,.mp4,.mp3"
+                  className="hidden"
+                  onChange={handleUploadMaterial}
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => document.getElementById('material-upload-detail')?.click()}
+                  disabled={uploadingMaterial}
+                >
+                  {uploadingMaterial ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Upload className="w-4 h-4 mr-2" />
+                  )}
+                  Upload Files
+                </Button>
+              </div>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent>
+          {materials.length === 0 ? (
+            <div className="text-center py-6">
+              <FileText className="w-10 h-10 text-muted-foreground mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground">No materials uploaded yet</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {materials.map((mat) => (
+                <div key={mat.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <FileText className="w-5 h-5 text-primary shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">{mat.file_name}</p>
+                      <p className="text-xs text-muted-foreground">{formatFileSize(mat.file_size)}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+                      <a href={mat.file_url} target="_blank" rel="noopener noreferrer" download>
+                        <Download className="w-4 h-4" />
+                      </a>
+                    </Button>
+                    {isInstructor && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive hover:text-destructive"
+                        onClick={() => handleDeleteMaterial(mat.id)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </CardContent>
