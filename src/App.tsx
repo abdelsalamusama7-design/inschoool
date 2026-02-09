@@ -16,6 +16,7 @@ import AdminSubscriptionsPage from "./pages/AdminSubscriptionsPage";
 import CurriculumGeneratorPage from "./pages/CurriculumGeneratorPage";
 import SchedulePage from "./pages/SchedulePage";
 import StudentsPage from "./pages/StudentsPage";
+import ProgressPage from "./pages/ProgressPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -99,6 +100,14 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={['instructor']}>
                   <StudentsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/progress"
+              element={
+                <ProtectedRoute allowedRoles={['student', 'parent']}>
+                  <ProgressPage />
                 </ProtectedRoute>
               }
             />
