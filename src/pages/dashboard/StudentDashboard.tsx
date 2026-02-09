@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { BookOpen, CheckCircle, Clock, GraduationCap } from 'lucide-react';
 import SubscriptionStatus from '@/components/dashboard/SubscriptionStatus';
+import WeeklyScheduleView from '@/components/dashboard/WeeklyScheduleView';
 
 interface Course {
   id: string;
@@ -26,6 +27,7 @@ interface LessonProgress {
 const StudentDashboard = () => {
   const { user, profile } = useAuth();
   const [courses, setCourses] = useState<Course[]>([]);
+  const [enrolledCourseIds, setEnrolledCourseIds] = useState<string[]>([]);
   const [progress, setProgress] = useState<LessonProgress[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -56,6 +58,7 @@ const StudentDashboard = () => {
           .map((e: any) => e.courses)
           .filter(Boolean);
         setCourses(courseData);
+        setEnrolledCourseIds(courseData.map((c: Course) => c.id));
       }
 
       // Fetch progress
@@ -186,6 +189,9 @@ const StudentDashboard = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Weekly Schedule */}
+      <WeeklyScheduleView courseIds={enrolledCourseIds} />
     </div>
   );
 };
