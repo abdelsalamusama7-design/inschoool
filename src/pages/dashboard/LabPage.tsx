@@ -1,15 +1,10 @@
 import { useParams } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Code2, Blocks, Terminal, Gamepad2, Construction } from 'lucide-react';
+import { Blocks, Terminal, Gamepad2, Construction } from 'lucide-react';
+import ScratchLabPage from './ScratchLabPage';
 
 const labConfig: Record<string, { title: string; icon: React.ComponentType<{ className?: string }>; description: string; color: string }> = {
-  scratch: {
-    title: 'Scratch Lab',
-    icon: Code2,
-    description: 'Build interactive stories, games, and animations using Scratch visual programming.',
-    color: 'bg-orange-500/10 text-orange-600 border-orange-200',
-  },
   minecraft: {
     title: 'Minecraft Coding',
     icon: Blocks,
@@ -32,6 +27,12 @@ const labConfig: Record<string, { title: string; icon: React.ComponentType<{ cla
 
 const LabPage = () => {
   const { labType } = useParams<{ labType: string }>();
+
+  // Scratch Lab is fully functional
+  if (labType === 'scratch') {
+    return <ScratchLabPage />;
+  }
+
   const config = labConfig[labType || ''];
 
   if (!config) {
