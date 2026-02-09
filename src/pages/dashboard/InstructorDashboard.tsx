@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Users, Plus, FileText, Calendar } from 'lucide-react';
+import { BookOpen, Users, Plus, FileText, Calendar, Sparkles } from 'lucide-react';
 
 interface Course {
   id: string;
@@ -93,10 +93,16 @@ const InstructorDashboard = () => {
           <h1 className="text-3xl font-bold">Welcome, {profile?.full_name?.split(' ')[0]}!</h1>
           <p className="text-muted-foreground">Manage your courses and students</p>
         </div>
-        <Button onClick={() => navigate('/dashboard/courses/new')}>
-          <Plus className="w-4 h-4 mr-2" />
-          Create Course
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => navigate('/dashboard/curriculum-generator')}>
+            <Sparkles className="w-4 h-4 mr-2" />
+            Generate Lessons
+          </Button>
+          <Button onClick={() => navigate('/dashboard/courses/new')}>
+            <Plus className="w-4 h-4 mr-2" />
+            Create Course
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}
