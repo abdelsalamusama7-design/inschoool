@@ -193,33 +193,22 @@ const ParentDashboard = () => {
 
     setLinkingStudent(true);
     try {
-      const { data: studentProfile } = await supabase
-        .from('profiles')
-        .select('user_id')
-        .eq('email', studentEmail.trim())
-        .single();
+      // Use security definer function to find student by email (bypasses RLS)
+      const { data: result, error: lookupError } = await supabase
+        .rpc('find_student_by_email', { _email: studentEmail.trim() });
 
-      if (!studentProfile) {
+      if (lookupError || !result || result.length === 0) {
         toast.error('لا يوجد طالب بهذا الإيميل');
         return;
       }
 
-      const { data: roleData } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', studentProfile.user_id)
-        .single();
-
-      if (!roleData || roleData.role !== 'student') {
-        toast.error('هذا المستخدم ليس طالباً');
-        return;
-      }
+      const studentUserId = result[0].student_user_id;
 
       const { error } = await supabase
         .from('student_parent_links')
         .insert({
           parent_id: user!.id,
-          student_id: studentProfile.user_id,
+          student_id: studentUserId,
         });
 
       if (error) {
