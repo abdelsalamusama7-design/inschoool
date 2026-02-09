@@ -125,6 +125,9 @@ export type Database = {
           description: string | null
           id: string
           order_index: number | null
+          scratch_enabled: boolean
+          scratch_instructions: string | null
+          scratch_url: string | null
           title: string
           updated_at: string
           video_url: string | null
@@ -136,6 +139,9 @@ export type Database = {
           description?: string | null
           id?: string
           order_index?: number | null
+          scratch_enabled?: boolean
+          scratch_instructions?: string | null
+          scratch_url?: string | null
           title: string
           updated_at?: string
           video_url?: string | null
@@ -147,6 +153,9 @@ export type Database = {
           description?: string | null
           id?: string
           order_index?: number | null
+          scratch_enabled?: boolean
+          scratch_instructions?: string | null
+          scratch_url?: string | null
           title?: string
           updated_at?: string
           video_url?: string | null

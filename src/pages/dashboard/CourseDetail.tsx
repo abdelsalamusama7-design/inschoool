@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import ScratchCodingLab from '@/components/dashboard/ScratchCodingLab';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,7 +10,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { ArrowLeft, Plus, FileText, Trash2, Lock, Crown, Upload, Download, Loader2, Pencil, Image } from 'lucide-react';
+import { ArrowLeft, Plus, FileText, Trash2, Lock, Crown, Upload, Download, Loader2, Pencil, Image, Code2 } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 
@@ -28,6 +30,9 @@ interface Lesson {
   content: string;
   video_url: string;
   order_index: number;
+  scratch_enabled: boolean;
+  scratch_url: string | null;
+  scratch_instructions: string | null;
 }
 interface CourseMaterial {
   id: string;
@@ -65,7 +70,13 @@ const CourseDetail = () => {
   const [lessonDescription, setLessonDescription] = useState('');
   const [lessonContent, setLessonContent] = useState('');
   const [lessonVideoUrl, setLessonVideoUrl] = useState('');
+  const [lessonScratchEnabled, setLessonScratchEnabled] = useState(false);
+  const [lessonScratchUrl, setLessonScratchUrl] = useState('');
+  const [lessonScratchInstructions, setLessonScratchInstructions] = useState('');
   const [savingLesson, setSavingLesson] = useState(false);
+
+  // Scratch lab state
+  const [activeScratchLesson, setActiveScratchLesson] = useState<Lesson | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -149,6 +160,9 @@ const CourseDetail = () => {
           content: lessonContent || null,
           video_url: lessonVideoUrl || null,
           order_index: lessons.length,
+          scratch_enabled: lessonScratchEnabled,
+          scratch_url: lessonScratchEnabled ? (lessonScratchUrl || null) : null,
+          scratch_instructions: lessonScratchEnabled ? (lessonScratchInstructions || null) : null,
         });
 
       if (error) throw error;
@@ -158,6 +172,9 @@ const CourseDetail = () => {
       setLessonDescription('');
       setLessonContent('');
       setLessonVideoUrl('');
+      setLessonScratchEnabled(false);
+      setLessonScratchUrl('');
+      setLessonScratchInstructions('');
       setDialogOpen(false);
       fetchCourse();
     } catch (error) {
@@ -323,6 +340,18 @@ const CourseDetail = () => {
 
   const isInstructor = role === 'instructor' && course;
 
+  // If Scratch lab is open, show it
+  if (activeScratchLesson) {
+    return (
+      <ScratchCodingLab
+        scratchUrl={activeScratchLesson.scratch_url || 'https://scratch.mit.edu/projects/editor/'}
+        instructions={activeScratchLesson.scratch_instructions}
+        lessonTitle={activeScratchLesson.title}
+        onClose={() => setActiveScratchLesson(null)}
+      />
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Course Thumbnail Banner */}
@@ -399,6 +428,46 @@ const CourseDetail = () => {
                       onChange={(e) => setLessonVideoUrl(e.target.value)}
                     />
                   </div>
+
+                  {/* Scratch Workspace Settings */}
+                  <div className="border rounded-lg p-4 space-y-3 bg-muted/30">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Code2 className="h-4 w-4 text-primary" />
+                        <Label htmlFor="scratch-toggle" className="font-medium">Enable Scratch Workspace</Label>
+                      </div>
+                      <Switch
+                        id="scratch-toggle"
+                        checked={lessonScratchEnabled}
+                        onCheckedChange={setLessonScratchEnabled}
+                      />
+                    </div>
+                    {lessonScratchEnabled && (
+                      <div className="space-y-3 pt-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="scratch-url">Scratch Project URL</Label>
+                          <Input
+                            id="scratch-url"
+                            placeholder="https://scratch.mit.edu/projects/..."
+                            value={lessonScratchUrl}
+                            onChange={(e) => setLessonScratchUrl(e.target.value)}
+                          />
+                          <p className="text-xs text-muted-foreground">Paste a Scratch project or studio link</p>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="scratch-instructions">Activity Instructions</Label>
+                          <Textarea
+                            id="scratch-instructions"
+                            placeholder="Write instructions for students..."
+                            value={lessonScratchInstructions}
+                            onChange={(e) => setLessonScratchInstructions(e.target.value)}
+                            rows={3}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                   <Button onClick={handleAddLesson} disabled={savingLesson} className="w-full">
                     {savingLesson ? 'Adding...' : 'Add Lesson'}
                   </Button>
@@ -454,7 +523,15 @@ const CourseDetail = () => {
                         {locked ? <Lock className="w-4 h-4" /> : index + 1}
                       </div>
                       <div>
-                        <h4 className="font-medium">{lesson.title}</h4>
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-medium">{lesson.title}</h4>
+                          {lesson.scratch_enabled && (
+                            <Badge variant="outline" className="text-xs gap-1">
+                              <Code2 className="w-3 h-3" />
+                              Scratch
+                            </Badge>
+                          )}
+                        </div>
                         {lesson.description && (
                           <p className="text-sm text-muted-foreground">{lesson.description}</p>
                         )}
@@ -463,16 +540,29 @@ const CourseDetail = () => {
                         )}
                       </div>
                     </div>
-                    {isInstructor && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-destructive hover:text-destructive"
-                        onClick={() => handleDeleteLesson(lesson.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {!locked && lesson.scratch_enabled && lesson.scratch_url && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="gap-1"
+                          onClick={() => setActiveScratchLesson(lesson)}
+                        >
+                          <Code2 className="w-4 h-4" />
+                          <span className="hidden sm:inline">Open Scratch Lab</span>
+                        </Button>
+                      )}
+                      {isInstructor && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive hover:text-destructive"
+                          onClick={() => handleDeleteLesson(lesson.id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 );
               })}
