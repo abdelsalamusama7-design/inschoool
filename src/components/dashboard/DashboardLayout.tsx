@@ -30,7 +30,30 @@ import {
   Crown,
   CreditCard,
   Sparkles,
+  FlaskConical,
+  Code2,
+  Blocks,
+  Terminal,
+  Gamepad2,
+  ChevronDown,
 } from 'lucide-react';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+
+interface MenuItem {
+  title: string;
+  icon: React.ComponentType<{ className?: string }>;
+  url: string;
+}
+
+interface LabItem {
+  title: string;
+  icon: React.ComponentType<{ className?: string }>;
+  url: string;
+}
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -45,8 +68,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     navigate('/auth');
   };
 
-  const getMenuItems = () => {
-    const baseItems = [
+  const getMenuItems = (): MenuItem[] => {
+    const baseItems: MenuItem[] = [
       { title: 'Dashboard', icon: Home, url: '/dashboard' },
     ];
 
@@ -84,6 +107,19 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     return baseItems;
   };
 
+  const getLabItems = (): LabItem[] => {
+    if (role === 'student' || role === 'instructor') {
+      return [
+        { title: 'Scratch Lab', icon: Code2, url: '/dashboard/labs/scratch' },
+        { title: 'Minecraft Coding', icon: Blocks, url: '/dashboard/labs/minecraft' },
+        { title: 'Python Playground', icon: Terminal, url: '/dashboard/labs/python' },
+        { title: 'Coding Gamification', icon: Gamepad2, url: '/dashboard/labs/gamification' },
+      ];
+    }
+    return [];
+  };
+
+  const labItems = getLabItems();
   const menuItems = getMenuItems();
   const initials = profile?.full_name
     ?.split(' ')
@@ -135,6 +171,39 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
+
+            {labItems.length > 0 && (
+              <SidebarGroup>
+                <Collapsible defaultOpen={window.location.pathname.startsWith('/dashboard/labs')}>
+                  <CollapsibleTrigger className="w-full">
+                    <SidebarGroupLabel className="flex items-center justify-between w-full cursor-pointer hover:text-foreground transition-colors">
+                      <span className="flex items-center gap-2">
+                        <FlaskConical className="w-3.5 h-3.5" />
+                        Labs
+                      </span>
+                      <ChevronDown className="w-3.5 h-3.5 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                    </SidebarGroupLabel>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarGroupContent>
+                      <SidebarMenu>
+                        {labItems.map((lab) => (
+                          <SidebarMenuItem key={lab.title}>
+                            <SidebarMenuButton
+                              onClick={() => navigate(lab.url)}
+                              isActive={window.location.pathname === lab.url}
+                            >
+                              <lab.icon className="w-4 h-4" />
+                              <span>{lab.title}</span>
+                            </SidebarMenuButton>
+                          </SidebarMenuItem>
+                        ))}
+                      </SidebarMenu>
+                    </SidebarGroupContent>
+                  </CollapsibleContent>
+                </Collapsible>
+              </SidebarGroup>
+            )}
           </SidebarContent>
           
           <SidebarFooter className="border-t border-sidebar-border p-4">
