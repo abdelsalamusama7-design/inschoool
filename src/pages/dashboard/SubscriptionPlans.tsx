@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -9,7 +9,20 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Check, Crown, Upload, Smartphone, Building2, CreditCard } from 'lucide-react';
+import {
+  Crown,
+  Upload,
+  Smartphone,
+  Building2,
+  Layers,
+  Pause,
+  CalendarSync,
+  Headset,
+  Users,
+  Trophy,
+  Coins,
+  BookOpen,
+} from 'lucide-react';
 
 interface Plan {
   id: string;
@@ -26,6 +39,34 @@ const PAYMENT_METHODS = [
   { value: 'instapay', label: 'إنستاباي', icon: Building2, instructions: 'حوّل المبلغ على الرقم: 01032320096 ثم ارفع صورة التحويل' },
   { value: 'e_wallet', label: 'المحفظة الإلكترونية', icon: Smartphone, instructions: 'حوّل المبلغ على الرقم: 01227080430 ثم ارفع صورة التحويل' },
 ];
+
+const featureIconMap: Record<string, typeof Layers> = {
+  Level: Layers,
+  Levels: Layers,
+  Freeze: Pause,
+  Reschedule: CalendarSync,
+  Customer: Headset,
+  Parent: Users,
+  Leaderboard: Trophy,
+  Coins: Coins,
+};
+
+const getFeatureIcon = (feature: string) => {
+  for (const [key, Icon] of Object.entries(featureIconMap)) {
+    if (feature.includes(key)) return Icon;
+  }
+  return BookOpen;
+};
+
+const getDurationLabel = (days: number) => {
+  if (days <= 90) return '3 Months';
+  if (days <= 180) return '6 Months';
+  return '12 Months';
+};
+
+const getSessionCount = (maxLessons: number | null) => {
+  return maxLessons ? `${maxLessons} Sessions` : 'Unlimited';
+};
 
 const SubscriptionPlans = () => {
   const { user } = useAuth();
@@ -76,32 +117,6 @@ const SubscriptionPlans = () => {
   const handleSubscribe = async () => {
     if (!selectedPlan || !user) return;
 
-    // Free plan - subscribe directly
-    if (selectedPlan.price === 0) {
-      try {
-        setSubmitting(true);
-        const { error } = await supabase.from('subscriptions').insert({
-          user_id: user.id,
-          plan_id: selectedPlan.id,
-          status: 'active',
-          starts_at: new Date().toISOString(),
-          expires_at: new Date(Date.now() + selectedPlan.duration_days * 86400000).toISOString(),
-        });
-
-        if (error) throw error;
-
-        toast({ title: 'تم الاشتراك بنجاح!', description: 'يمكنك الآن الوصول للدروس المجانية' });
-        setSelectedPlan(null);
-        setCurrentPlan(selectedPlan.id);
-      } catch (error: any) {
-        toast({ title: 'خطأ', description: error.message, variant: 'destructive' });
-      } finally {
-        setSubmitting(false);
-      }
-      return;
-    }
-
-    // Paid plan - require payment
     if (!paymentMethod) {
       toast({ title: 'اختر طريقة الدفع', variant: 'destructive' });
       return;
@@ -110,7 +125,6 @@ const SubscriptionPlans = () => {
     try {
       setSubmitting(true);
 
-      // Create subscription with pending status
       const { data: sub, error: subError } = await supabase
         .from('subscriptions')
         .insert({
@@ -123,7 +137,6 @@ const SubscriptionPlans = () => {
 
       if (subError) throw subError;
 
-      // Upload screenshot if provided
       let screenshotUrl = null;
       if (screenshot) {
         const filePath = `${user.id}/${Date.now()}_${screenshot.name}`;
@@ -140,7 +153,6 @@ const SubscriptionPlans = () => {
         screenshotUrl = urlData.publicUrl;
       }
 
-      // Create payment request
       const { error: payError } = await supabase.from('payment_requests').insert({
         user_id: user.id,
         subscription_id: sub.id,
@@ -176,63 +188,79 @@ const SubscriptionPlans = () => {
 
   const selectedMethodInfo = PAYMENT_METHODS.find(m => m.value === paymentMethod);
 
+  // Find the "best value" plan (12 months)
+  const bestValuePlanId = plans.reduce((best, plan) =>
+    plan.duration_days > (best?.duration_days || 0) ? plan : best, plans[0]
+  )?.id;
+
+  const isQuranPlan = (plan: Plan) => plan.name.toLowerCase().includes('quran');
+
   return (
     <div className="space-y-6" dir="rtl">
-      <div>
+      <div className="text-center">
         <h1 className="text-3xl font-bold">باقات الاشتراك</h1>
-        <p className="text-muted-foreground">اختر الباقة المناسبة لك</p>
+        <p className="text-muted-foreground mt-1">اختر الباقة المناسبة لك</p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {plans.map((plan) => {
           const isCurrent = currentPlan === plan.id;
-          const isPremium = plan.name === 'Premium Monthly';
+          const isBestValue = plan.id === bestValuePlanId;
+          const isQuran = isQuranPlan(plan);
 
           return (
             <Card
               key={plan.id}
-              className={`relative transition-all ${isPremium ? 'border-primary shadow-lg scale-105' : ''} ${isCurrent ? 'border-green-500' : ''}`}
+              className={`relative transition-all hover:shadow-lg ${
+                isBestValue ? 'border-primary shadow-md ring-2 ring-primary/20' : ''
+              } ${isCurrent ? 'border-emerald-500 ring-2 ring-emerald-500/20' : ''}`}
             >
-              {isPremium && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <Badge className="bg-primary text-primary-foreground">
-                    <Crown className="w-3 h-3 mr-1" /> الأفضل قيمة
+              {isBestValue && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                  <Badge className="bg-primary text-primary-foreground px-3 py-1">
+                    <Crown className="w-3 h-3 ml-1" /> Best Value
                   </Badge>
                 </div>
               )}
-              <CardHeader className="text-center pb-2">
+
+              <CardHeader className="pb-3 pt-6">
+                {isQuran && (
+                  <p className="text-xs font-semibold text-primary mb-1">for Quran Kareem</p>
+                )}
                 <CardTitle className="text-xl">{plan.name_ar}</CardTitle>
-                <CardDescription>{plan.name}</CardDescription>
-                <div className="mt-4">
-                  <span className="text-4xl font-bold">
-                    {plan.price === 0 ? 'مجاني' : `${plan.price}`}
-                  </span>
-                  {plan.price > 0 && (
-                    <span className="text-muted-foreground mr-1">جنيه/شهر</span>
-                  )}
+                <p className="text-sm text-muted-foreground">
+                  {getDurationLabel(plan.duration_days)}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {getSessionCount(plan.max_lessons)}
+                </p>
+
+                <div className="pt-3">
+                  <span className="text-3xl font-bold">{plan.price.toLocaleString()}</span>
+                  <span className="text-sm text-muted-foreground mr-1">EGP</span>
                 </div>
               </CardHeader>
+
               <CardContent className="space-y-4">
-                <ul className="space-y-2">
-                  {plan.features.map((feature, i) => (
-                    <li key={i} className="flex items-center gap-2 text-sm">
-                      <Check className="w-4 h-4 text-green-500 shrink-0" />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                  {plan.max_lessons && (
-                    <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <span>الحد الأقصى: {plan.max_lessons} دروس</span>
-                    </li>
-                  )}
+                <ul className="space-y-2.5">
+                  {plan.features.map((feature, i) => {
+                    const Icon = getFeatureIcon(feature);
+                    return (
+                      <li key={i} className="flex items-center gap-2.5 text-sm">
+                        <Icon className="w-4 h-4 text-primary shrink-0" />
+                        <span>{feature}</span>
+                      </li>
+                    );
+                  })}
                 </ul>
+
                 <Button
                   className="w-full"
-                  variant={isPremium ? 'default' : 'outline'}
+                  variant={isBestValue ? 'default' : 'outline'}
                   disabled={isCurrent}
                   onClick={() => setSelectedPlan(plan)}
                 >
-                  {isCurrent ? 'الباقة الحالية' : plan.price === 0 ? 'ابدأ مجاناً' : 'اشترك الآن'}
+                  {isCurrent ? 'الباقة الحالية' : 'اشترك الآن'}
                 </Button>
               </CardContent>
             </Card>
@@ -244,79 +272,73 @@ const SubscriptionPlans = () => {
       <Dialog open={!!selectedPlan} onOpenChange={() => setSelectedPlan(null)}>
         <DialogContent className="sm:max-w-md" dir="rtl">
           <DialogHeader>
-            <DialogTitle>
-              {selectedPlan?.price === 0 ? 'تأكيد الاشتراك المجاني' : 'إتمام الدفع'}
-            </DialogTitle>
+            <DialogTitle>إتمام الدفع</DialogTitle>
             <DialogDescription>
-              {selectedPlan?.price === 0
-                ? `سيتم تفعيل باقة ${selectedPlan?.name_ar} مباشرة`
-                : `المبلغ المطلوب: ${selectedPlan?.price} جنيه مصري`}
+              {selectedPlan?.name_ar} — المبلغ المطلوب: {selectedPlan?.price.toLocaleString()} جنيه مصري
             </DialogDescription>
           </DialogHeader>
 
-          {selectedPlan && selectedPlan.price > 0 && (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>طريقة الدفع</Label>
-                <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="اختر طريقة الدفع" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {PAYMENT_METHODS.map((method) => (
-                      <SelectItem key={method.value} value={method.value}>
-                        <div className="flex items-center gap-2">
-                          <method.icon className="w-4 h-4" />
-                          <span>{method.label}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>طريقة الدفع</Label>
+              <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+                <SelectTrigger>
+                  <SelectValue placeholder="اختر طريقة الدفع" />
+                </SelectTrigger>
+                <SelectContent>
+                  {PAYMENT_METHODS.map((method) => (
+                    <SelectItem key={method.value} value={method.value}>
+                      <div className="flex items-center gap-2">
+                        <method.icon className="w-4 h-4" />
+                        <span>{method.label}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {selectedMethodInfo && (
+              <div className="p-3 bg-muted rounded-lg text-sm">
+                {selectedMethodInfo.instructions}
               </div>
+            )}
 
-              {selectedMethodInfo && (
-                <div className="p-3 bg-muted rounded-lg text-sm">
-                  {selectedMethodInfo.instructions}
-                </div>
-              )}
+            <div className="space-y-2">
+              <Label>رقم المرجع / التحويل (اختياري)</Label>
+              <Input
+                value={referenceNumber}
+                onChange={(e) => setReferenceNumber(e.target.value)}
+                placeholder="أدخل رقم المرجع"
+              />
+            </div>
 
-              <div className="space-y-2">
-                <Label>رقم المرجع / التحويل (اختياري)</Label>
-                <Input
-                  value={referenceNumber}
-                  onChange={(e) => setReferenceNumber(e.target.value)}
-                  placeholder="أدخل رقم المرجع"
+            <div className="space-y-2">
+              <Label>صورة إيصال الدفع</Label>
+              <div className="border-2 border-dashed rounded-lg p-4 text-center">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setScreenshot(e.target.files?.[0] || null)}
+                  className="hidden"
+                  id="screenshot-upload"
                 />
-              </div>
-
-              <div className="space-y-2">
-                <Label>صورة إيصال الدفع</Label>
-                <div className="border-2 border-dashed rounded-lg p-4 text-center">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setScreenshot(e.target.files?.[0] || null)}
-                    className="hidden"
-                    id="screenshot-upload"
-                  />
-                  <label htmlFor="screenshot-upload" className="cursor-pointer">
-                    <Upload className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
-                    <p className="text-sm text-muted-foreground">
-                      {screenshot ? screenshot.name : 'اضغط لرفع صورة الإيصال'}
-                    </p>
-                  </label>
-                </div>
+                <label htmlFor="screenshot-upload" className="cursor-pointer">
+                  <Upload className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
+                  <p className="text-sm text-muted-foreground">
+                    {screenshot ? screenshot.name : 'اضغط لرفع صورة الإيصال'}
+                  </p>
+                </label>
               </div>
             </div>
-          )}
+          </div>
 
           <Button
             onClick={handleSubscribe}
-            disabled={submitting || (selectedPlan?.price !== 0 && !paymentMethod)}
+            disabled={submitting || !paymentMethod}
             className="w-full"
           >
-            {submitting ? 'جاري الإرسال...' : selectedPlan?.price === 0 ? 'تفعيل الباقة المجانية' : 'إرسال طلب الاشتراك'}
+            {submitting ? 'جاري الإرسال...' : 'إرسال طلب الاشتراك'}
           </Button>
         </DialogContent>
       </Dialog>
