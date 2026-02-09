@@ -1,8 +1,6 @@
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, Maximize2, Minimize2, Code2, AlertTriangle } from 'lucide-react';
-import CodingTipsPanel from './CodingTipsPanel';
+import { ArrowLeft, ExternalLink, Code2, Rocket, Lightbulb, Star, Zap, Target } from 'lucide-react';
 
 interface ScratchFreePlayProps {
   onClose: () => void;
@@ -10,90 +8,79 @@ interface ScratchFreePlayProps {
 
 const SCRATCH_EDITOR_URL = 'https://scratch.mit.edu/projects/editor/';
 
-const ScratchFreePlay = ({ onClose }: ScratchFreePlayProps) => {
-  const [isFullscreen, setIsFullscreen] = useState(false);
+const tips = [
+  { icon: Lightbulb, title: 'Start Simple', text: 'Begin with a small project — try making a sprite move left and right!' },
+  { icon: Star, title: 'Use Loops', text: 'Repeat blocks save time. Use "forever" or "repeat" to animate smoothly.' },
+  { icon: Zap, title: 'Add Sound', text: 'Make your project fun! Add sound effects when sprites interact.' },
+  { icon: Target, title: 'Test Often', text: 'Click the green flag frequently to test your changes as you build.' },
+];
 
-  if (isFullscreen) {
-    return (
-      <div className="fixed inset-0 z-50 bg-background flex flex-col">
-        <div className="flex items-center justify-between px-4 py-2 border-b bg-card">
-          <div className="flex items-center gap-3">
-            <Code2 className="h-5 w-5 text-orange-500" />
-            <h2 className="font-bold text-sm sm:text-base">Scratch Free Play — Coding Lab</h2>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => setIsFullscreen(false)}>
-              <Minimize2 className="h-4 w-4 mr-1" />
-              <span className="hidden sm:inline">Exit Fullscreen</span>
-            </Button>
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              <ArrowLeft className="h-4 w-4 mr-1" />
-              <span className="hidden sm:inline">Back to Lab</span>
-            </Button>
-          </div>
-        </div>
-        <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-          <div className="flex-1 min-h-0">
-            <iframe
-              src={SCRATCH_EDITOR_URL}
-              className="w-full h-full border-0"
-              allowFullScreen
-              sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-              title="Scratch Free Play Editor"
-            />
-          </div>
-          <div className="lg:w-80 border-t lg:border-t-0 lg:border-l overflow-y-auto p-4 bg-card max-h-48 lg:max-h-full">
-            <CodingTipsPanel />
-          </div>
-        </div>
-      </div>
-    );
-  }
+const ScratchFreePlay = ({ onClose }: ScratchFreePlayProps) => {
+  const openScratchEditor = () => {
+    window.open(SCRATCH_EDITOR_URL, '_blank', 'noopener,noreferrer');
+  };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between flex-wrap gap-2">
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div className="flex items-center gap-2">
-            <Code2 className="h-5 w-5 text-orange-500" />
-            <h2 className="text-xl font-bold">Scratch Free Play</h2>
-          </div>
-        </div>
-        <Button variant="outline" size="sm" onClick={() => setIsFullscreen(true)}>
-          <Maximize2 className="h-4 w-4 mr-1" />
-          Full Screen
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <Button variant="ghost" size="icon" onClick={onClose}>
+          <ArrowLeft className="h-4 w-4" />
         </Button>
+        <div className="flex items-center gap-2">
+          <Code2 className="h-5 w-5 text-primary" />
+          <h2 className="text-xl font-bold">Scratch Free Play</h2>
+        </div>
       </div>
 
-      {/* Save reminder */}
-      <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-amber-500/10 border border-amber-300/40 text-sm">
-        <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
-        <span className="text-amber-800 dark:text-amber-200">
-          <strong>Save reminder:</strong> Sign in to Scratch to save your projects. Otherwise, your work will be lost when you leave!
-        </span>
-      </div>
+      {/* Main CTA Card */}
+      <Card className="overflow-hidden border-2 border-primary/20">
+        <div className="h-2 bg-gradient-to-r from-orange-400 via-amber-400 to-yellow-400" />
+        <CardContent className="p-8 flex flex-col items-center text-center gap-5">
+          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center shadow-xl">
+            <Rocket className="w-10 h-10 text-white" />
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-2xl font-bold">Ready to Code? 🚀</h3>
+            <p className="text-muted-foreground max-w-md">
+              The Scratch editor will open in a new tab. Build games, stories, and animations using visual coding blocks!
+            </p>
+          </div>
+          <Button
+            size="lg"
+            className="gap-2 text-base px-8"
+            onClick={openScratchEditor}
+          >
+            <ExternalLink className="h-5 w-5" />
+            Open Scratch Editor
+          </Button>
+          <p className="text-xs text-muted-foreground">
+            💡 Sign in to Scratch to save your projects!
+          </p>
+        </CardContent>
+      </Card>
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
-        {/* Scratch Editor Embed */}
-        <Card className="overflow-hidden">
-          <CardContent className="p-0">
-            <div className="aspect-[4/3] w-full">
-              <iframe
-                src={SCRATCH_EDITOR_URL}
-                className="w-full h-full border-0"
-                allowFullScreen
-                sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-                title="Scratch Free Play Editor"
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Right panel: Coding tips */}
-        <CodingTipsPanel />
+      {/* Coding Tips Grid */}
+      <div className="space-y-3">
+        <h3 className="text-lg font-semibold flex items-center gap-2">
+          <Lightbulb className="h-5 w-5 text-amber-500" />
+          Coding Tips & Suggestions
+        </h3>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {tips.map((tip, i) => (
+            <Card key={i} className="hover:shadow-sm transition-shadow">
+              <CardContent className="p-4 flex items-start gap-3">
+                <div className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center shrink-0">
+                  <tip.icon className="w-4 h-4 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">{tip.title}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{tip.text}</p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     </div>
   );
