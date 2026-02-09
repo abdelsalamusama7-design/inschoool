@@ -10,7 +10,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { ArrowLeft, Plus, FileText, Trash2, Lock, Crown, Upload, Download, Loader2, Pencil, Image, Code2 } from 'lucide-react';
+import { ArrowLeft, Plus, FileText, Trash2, Lock, Crown, Upload, Download, Loader2, Pencil, Image, Code2, Users, CheckCircle } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
@@ -77,6 +78,7 @@ const CourseDetail = () => {
 
   // Scratch lab state
   const [activeScratchLesson, setActiveScratchLesson] = useState<Lesson | null>(null);
+  const [scratchCompletions, setScratchCompletions] = useState<Map<string, { count: number; students: { name: string; notes: string | null; completed_at: string }[] }>>(new Map());
 
   useEffect(() => {
     if (id) {
@@ -109,6 +111,47 @@ const CourseDetail = () => {
     }
   };
 
+  const fetchScratchCompletions = async (lessonsList?: typeof lessons) => {
+    const targetLessons = lessonsList || lessons;
+    const scratchLessonIds = targetLessons
+      .filter(l => l.scratch_enabled)
+      .map(l => l.id);
+
+    if (scratchLessonIds.length === 0) return;
+
+    const { data } = await supabase
+      .from('scratch_activity_logs')
+      .select('lesson_id, user_id, notes, completed_at')
+      .in('lesson_id', scratchLessonIds);
+
+    if (!data) return;
+
+    // Fetch student names for the completions
+    const studentIds = [...new Set(data.map(d => d.user_id))];
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('user_id, full_name')
+      .in('user_id', studentIds);
+
+    const nameMap = new Map(profiles?.map(p => [p.user_id, p.full_name]) || []);
+
+    const completionMap = new Map<string, { count: number; students: { name: string; notes: string | null; completed_at: string }[] }>();
+
+    for (const lessonId of scratchLessonIds) {
+      const lessonLogs = data.filter(d => d.lesson_id === lessonId);
+      completionMap.set(lessonId, {
+        count: lessonLogs.length,
+        students: lessonLogs.map(l => ({
+          name: nameMap.get(l.user_id) || 'Unknown',
+          notes: l.notes,
+          completed_at: l.completed_at,
+        })),
+      });
+    }
+
+    setScratchCompletions(completionMap);
+  };
+
   const fetchCourse = async () => {
     try {
       const { data: courseData } = await supabase
@@ -133,7 +176,13 @@ const CourseDetail = () => {
             .order('created_at', { ascending: false }),
         ]);
 
-        if (lessonsRes.data) setLessons(lessonsRes.data);
+        if (lessonsRes.data) {
+          setLessons(lessonsRes.data);
+          // Fetch scratch completions for instructor view
+          if (role === 'instructor') {
+            fetchScratchCompletions(lessonsRes.data);
+          }
+        }
         if (materialsRes.data) setMaterials(materialsRes.data);
       }
     } catch (error) {
@@ -347,7 +396,9 @@ const CourseDetail = () => {
         scratchUrl={activeScratchLesson.scratch_url || 'https://scratch.mit.edu/projects/editor/'}
         instructions={activeScratchLesson.scratch_instructions}
         lessonTitle={activeScratchLesson.title}
+        lessonId={activeScratchLesson.id}
         onClose={() => setActiveScratchLesson(null)}
+        onComplete={() => fetchScratchCompletions()}
       />
     );
   }
@@ -530,6 +581,38 @@ const CourseDetail = () => {
                               <Code2 className="w-3 h-3" />
                               Scratch
                             </Badge>
+                          )}
+                          {isInstructor && lesson.scratch_enabled && scratchCompletions.has(lesson.id) && (
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Badge variant="secondary" className="text-xs gap-1 cursor-pointer">
+                                  <Users className="w-3 h-3" />
+                                  {scratchCompletions.get(lesson.id)!.count} completed
+                                </Badge>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-72 p-3">
+                                <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
+                                  <CheckCircle className="w-4 h-4 text-primary" />
+                                  Students who completed
+                                </h4>
+                                <div className="space-y-2 max-h-48 overflow-y-auto">
+                                  {scratchCompletions.get(lesson.id)!.students.map((s, i) => (
+                                    <div key={i} className="flex items-start gap-2 p-2 rounded bg-muted/50 text-sm">
+                                      <CheckCircle className="w-3.5 h-3.5 text-primary mt-0.5 shrink-0" />
+                                      <div className="min-w-0">
+                                        <p className="font-medium truncate">{s.name}</p>
+                                        <p className="text-xs text-muted-foreground">
+                                          {new Date(s.completed_at).toLocaleDateString('ar-EG')}
+                                        </p>
+                                        {s.notes && (
+                                          <p className="text-xs text-muted-foreground mt-1 italic">"{s.notes}"</p>
+                                        )}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </PopoverContent>
+                            </Popover>
                           )}
                         </div>
                         {lesson.description && (

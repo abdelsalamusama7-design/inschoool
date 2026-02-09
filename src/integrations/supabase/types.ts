@@ -339,6 +339,41 @@ export type Database = {
           },
         ]
       }
+      scratch_activity_logs: {
+        Row: {
+          completed_at: string
+          created_at: string
+          id: string
+          lesson_id: string
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          created_at?: string
+          id?: string
+          lesson_id: string
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          created_at?: string
+          id?: string
+          lesson_id?: string
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scratch_activity_logs_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_parent_links: {
         Row: {
           created_at: string
