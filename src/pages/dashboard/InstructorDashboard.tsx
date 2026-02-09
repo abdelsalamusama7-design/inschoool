@@ -27,6 +27,7 @@ const InstructorDashboard = () => {
   const [enrollmentCounts, setEnrollmentCounts] = useState<Map<string, number>>(new Map());
   const [totalLessons, setTotalLessons] = useState(0);
   const [totalStudents, setTotalStudents] = useState(0);
+  const [totalSchedules, setTotalSchedules] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -67,12 +68,19 @@ const InstructorDashboard = () => {
         // Fetch total lessons
         const courseIds = coursesData.map(c => c.id);
         if (courseIds.length > 0) {
-          const { count: lessonsCount } = await supabase
-            .from('lessons')
-            .select('*', { count: 'exact', head: true })
-            .in('course_id', courseIds);
+          const [lessonsRes, schedulesRes] = await Promise.all([
+            supabase
+              .from('lessons')
+              .select('*', { count: 'exact', head: true })
+              .in('course_id', courseIds),
+            supabase
+              .from('schedules')
+              .select('*', { count: 'exact', head: true })
+              .in('course_id', courseIds),
+          ]);
           
-          setTotalLessons(lessonsCount || 0);
+          setTotalLessons(lessonsRes.count || 0);
+          setTotalSchedules(schedulesRes.count || 0);
         }
       }
     } catch (error) {
@@ -140,7 +148,7 @@ const InstructorDashboard = () => {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">-</div>
+            <div className="text-2xl font-bold">{totalSchedules}</div>
           </CardContent>
         </Card>
       </div>

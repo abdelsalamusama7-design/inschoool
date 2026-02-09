@@ -14,6 +14,7 @@ import CourseDetailPage from "./pages/CourseDetailPage";
 import SubscriptionPage from "./pages/SubscriptionPage";
 import AdminSubscriptionsPage from "./pages/AdminSubscriptionsPage";
 import CurriculumGeneratorPage from "./pages/CurriculumGeneratorPage";
+import SchedulePage from "./pages/SchedulePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -81,6 +82,14 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={['instructor']}>
                   <CurriculumGeneratorPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/schedule"
+              element={
+                <ProtectedRoute allowedRoles={['instructor']}>
+                  <SchedulePage />
                 </ProtectedRoute>
               }
             />
