@@ -9,7 +9,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { ArrowLeft, Plus, FileText, Trash2, Lock, Crown, Upload, Download, Loader2 } from 'lucide-react';
+import { ArrowLeft, Plus, FileText, Trash2, Lock, Crown, Upload, Download, Loader2, Pencil, Image } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 
 interface Course {
@@ -17,6 +18,7 @@ interface Course {
   title: string;
   description: string;
   age_group: string;
+  thumbnail_url: string | null;
 }
 
 interface Lesson {
@@ -49,6 +51,15 @@ const CourseDetail = () => {
   const [maxLessons, setMaxLessons] = useState<number | null>(null);
   const [uploadingMaterial, setUploadingMaterial] = useState(false);
   
+  // Edit course state
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editAgeGroup, setEditAgeGroup] = useState('');
+  const [editThumbnail, setEditThumbnail] = useState<File | null>(null);
+  const [editThumbnailPreview, setEditThumbnailPreview] = useState<string | null>(null);
+  const [savingEdit, setSavingEdit] = useState(false);
+
   // New lesson form
   const [lessonTitle, setLessonTitle] = useState('');
   const [lessonDescription, setLessonDescription] = useState('');
@@ -224,6 +235,77 @@ const CourseDetail = () => {
     }
   };
 
+  const openEditDialog = () => {
+    if (!course) return;
+    setEditTitle(course.title);
+    setEditDescription(course.description || '');
+    setEditAgeGroup(course.age_group);
+    setEditThumbnailPreview(course.thumbnail_url || null);
+    setEditThumbnail(null);
+    setEditDialogOpen(true);
+  };
+
+  const handleEditThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setEditThumbnail(file);
+      const reader = new FileReader();
+      reader.onloadend = () => setEditThumbnailPreview(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    if (!course || !user || !editTitle.trim() || !editAgeGroup) return;
+
+    setSavingEdit(true);
+    try {
+      let thumbnailUrl = course.thumbnail_url;
+
+      // Upload new thumbnail if provided
+      if (editThumbnail) {
+        const ext = editThumbnail.name.split('.').pop();
+        const filePath = `thumbnails/${user.id}/${Date.now()}.${ext}`;
+        const { error: uploadError } = await supabase.storage
+          .from('course-materials')
+          .upload(filePath, editThumbnail);
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage
+          .from('course-materials')
+          .getPublicUrl(filePath);
+
+        thumbnailUrl = urlData.publicUrl;
+      }
+
+      const { error } = await supabase
+        .from('courses')
+        .update({
+          title: editTitle,
+          description: editDescription || null,
+          age_group: editAgeGroup as any,
+          thumbnail_url: thumbnailUrl,
+        })
+        .eq('id', course.id);
+
+      if (error) throw error;
+
+      toast.success('Course updated successfully!');
+      setEditDialogOpen(false);
+      fetchCourse();
+    } catch (error: any) {
+      toast.error('Failed to update: ' + error.message);
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
+  const handleRemoveEditThumbnail = () => {
+    setEditThumbnail(null);
+    setEditThumbnailPreview(null);
+  };
+
   const formatFileSize = (bytes: number | null) => {
     if (!bytes) return '';
     if (bytes < 1024) return `${bytes} B`;
@@ -243,8 +325,15 @@ const CourseDetail = () => {
 
   return (
     <div className="space-y-6">
+      {/* Course Thumbnail Banner */}
+      {course.thumbnail_url && (
+        <div className="h-48 rounded-lg overflow-hidden">
+          <img src={course.thumbnail_url} alt={course.title} className="w-full h-full object-cover" />
+        </div>
+      )}
+
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
+        <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard/courses')}>
           <ArrowLeft className="w-4 h-4" />
         </Button>
         <div className="flex-1">
@@ -255,62 +344,68 @@ const CourseDetail = () => {
           <p className="text-muted-foreground">{course.description || 'No description'}</p>
         </div>
         {isInstructor && (
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Lesson
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>Add New Lesson</DialogTitle>
-                <DialogDescription>Create a new lesson for this course</DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="lesson-title">Title *</Label>
-                  <Input
-                    id="lesson-title"
-                    placeholder="Lesson title"
-                    value={lessonTitle}
-                    onChange={(e) => setLessonTitle(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lesson-description">Description</Label>
-                  <Input
-                    id="lesson-description"
-                    placeholder="Brief description"
-                    value={lessonDescription}
-                    onChange={(e) => setLessonDescription(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lesson-content">Content</Label>
-                  <Textarea
-                    id="lesson-content"
-                    placeholder="Lesson content..."
-                    value={lessonContent}
-                    onChange={(e) => setLessonContent(e.target.value)}
-                    rows={4}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lesson-video">Video URL (optional)</Label>
-                  <Input
-                    id="lesson-video"
-                    placeholder="https://youtube.com/..."
-                    value={lessonVideoUrl}
-                    onChange={(e) => setLessonVideoUrl(e.target.value)}
-                  />
-                </div>
-                <Button onClick={handleAddLesson} disabled={savingLesson} className="w-full">
-                  {savingLesson ? 'Adding...' : 'Add Lesson'}
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={openEditDialog}>
+              <Pencil className="w-4 h-4 mr-2" />
+              Edit Course
+            </Button>
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Lesson
                 </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Add New Lesson</DialogTitle>
+                  <DialogDescription>Create a new lesson for this course</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="lesson-title">Title *</Label>
+                    <Input
+                      id="lesson-title"
+                      placeholder="Lesson title"
+                      value={lessonTitle}
+                      onChange={(e) => setLessonTitle(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lesson-description">Description</Label>
+                    <Input
+                      id="lesson-description"
+                      placeholder="Brief description"
+                      value={lessonDescription}
+                      onChange={(e) => setLessonDescription(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lesson-content">Content</Label>
+                    <Textarea
+                      id="lesson-content"
+                      placeholder="Lesson content..."
+                      value={lessonContent}
+                      onChange={(e) => setLessonContent(e.target.value)}
+                      rows={4}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lesson-video">Video URL (optional)</Label>
+                    <Input
+                      id="lesson-video"
+                      placeholder="https://youtube.com/..."
+                      value={lessonVideoUrl}
+                      onChange={(e) => setLessonVideoUrl(e.target.value)}
+                    />
+                  </div>
+                  <Button onClick={handleAddLesson} disabled={savingLesson} className="w-full">
+                    {savingLesson ? 'Adding...' : 'Add Lesson'}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
         )}
       </div>
 
@@ -461,6 +556,100 @@ const CourseDetail = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Edit Course Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Course</DialogTitle>
+            <DialogDescription>Update course details and thumbnail</DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-5">
+            {/* Thumbnail */}
+            <div className="space-y-2">
+              <Label>Course Thumbnail</Label>
+              <div className="border-2 border-dashed rounded-lg p-4">
+                {editThumbnailPreview ? (
+                  <div className="relative">
+                    <img src={editThumbnailPreview} alt="Thumbnail" className="w-full h-48 object-cover rounded-lg" />
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2 h-7 w-7"
+                      onClick={handleRemoveEditThumbnail}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                ) : (
+                  <label htmlFor="edit-thumbnail-upload" className="cursor-pointer block text-center py-6">
+                    <Image className="w-10 h-10 mx-auto text-muted-foreground mb-2" />
+                    <p className="text-sm text-muted-foreground">Click to upload thumbnail image</p>
+                  </label>
+                )}
+                <input
+                  id="edit-thumbnail-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleEditThumbnailChange}
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="edit-title">Course Title *</Label>
+                <Input
+                  id="edit-title"
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Age Group *</Label>
+                <Select value={editAgeGroup} onValueChange={setEditAgeGroup}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select age group" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="6-8">6-8 years</SelectItem>
+                    <SelectItem value="9-12">9-12 years</SelectItem>
+                    <SelectItem value="13-15">13-15 years</SelectItem>
+                    <SelectItem value="16-18">16-18 years</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-desc">Description</Label>
+              <Textarea
+                id="edit-desc"
+                value={editDescription}
+                onChange={(e) => setEditDescription(e.target.value)}
+                rows={3}
+              />
+            </div>
+
+            <Button
+              onClick={handleSaveEdit}
+              disabled={savingEdit || !editTitle.trim() || !editAgeGroup}
+              className="w-full"
+            >
+              {savingEdit ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                'Save Changes'
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
