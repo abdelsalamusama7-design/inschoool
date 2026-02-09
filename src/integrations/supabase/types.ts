@@ -300,6 +300,7 @@ export type Database = {
           end_time: string
           id: string
           start_time: string
+          student_or_group: string | null
         }
         Insert: {
           course_id: string
@@ -308,6 +309,7 @@ export type Database = {
           end_time: string
           id?: string
           start_time: string
+          student_or_group?: string | null
         }
         Update: {
           course_id?: string
@@ -316,6 +318,7 @@ export type Database = {
           end_time?: string
           id?: string
           start_time?: string
+          student_or_group?: string | null
         }
         Relationships: [
           {

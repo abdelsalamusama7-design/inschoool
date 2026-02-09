@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Trash2, Calendar, Clock, BookOpen, Pencil } from 'lucide-react';
+import { Plus, Trash2, Calendar, Clock, BookOpen, Pencil, Users } from 'lucide-react';
 
 interface Course {
   id: string;
@@ -24,6 +24,7 @@ interface Schedule {
   day_of_week: number;
   start_time: string;
   end_time: string;
+  student_or_group: string | null;
   course?: Course;
 }
 
@@ -51,6 +52,7 @@ const ScheduleManagement = () => {
   const [selectedDay, setSelectedDay] = useState('');
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
+  const [studentOrGroup, setStudentOrGroup] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -85,6 +87,7 @@ const ScheduleManagement = () => {
             day_of_week: s.day_of_week,
             start_time: s.start_time,
             end_time: s.end_time,
+            student_or_group: s.student_or_group,
             course: s.courses,
           }));
         setSchedules(mapped);
@@ -101,6 +104,7 @@ const ScheduleManagement = () => {
     setSelectedDay('');
     setStartTime('');
     setEndTime('');
+    setStudentOrGroup('');
     setEditingSchedule(null);
   };
 
@@ -115,6 +119,7 @@ const ScheduleManagement = () => {
     setSelectedDay(String(schedule.day_of_week));
     setStartTime(schedule.start_time.slice(0, 5));
     setEndTime(schedule.end_time.slice(0, 5));
+    setStudentOrGroup(schedule.student_or_group || '');
     setDialogOpen(true);
   };
 
@@ -139,6 +144,7 @@ const ScheduleManagement = () => {
             day_of_week: Number(selectedDay),
             start_time: startTime,
             end_time: endTime,
+            student_or_group: studentOrGroup.trim() || null,
           })
           .eq('id', editingSchedule.id);
 
@@ -152,6 +158,7 @@ const ScheduleManagement = () => {
             day_of_week: Number(selectedDay),
             start_time: startTime,
             end_time: endTime,
+            student_or_group: studentOrGroup.trim() || null,
           });
 
         if (error) throw error;
@@ -255,6 +262,7 @@ const ScheduleManagement = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Course</TableHead>
+                      <TableHead>Student / Group</TableHead>
                       <TableHead>Age Group</TableHead>
                       <TableHead>Start Time</TableHead>
                       <TableHead>End Time</TableHead>
@@ -266,6 +274,16 @@ const ScheduleManagement = () => {
                       <TableRow key={schedule.id}>
                         <TableCell className="font-medium">
                           {schedule.course?.title || 'Unknown Course'}
+                        </TableCell>
+                        <TableCell>
+                          {schedule.student_or_group ? (
+                            <span className="flex items-center gap-1.5">
+                              <Users className="w-3.5 h-3.5 text-muted-foreground" />
+                              {schedule.student_or_group}
+                            </span>
+                          ) : (
+                            <span className="text-muted-foreground text-sm">—</span>
+                          )}
                         </TableCell>
                         <TableCell>
                           <Badge variant="secondary">{schedule.course?.age_group}</Badge>
@@ -404,6 +422,16 @@ const ScheduleManagement = () => {
                   onChange={(e) => setEndTime(e.target.value)}
                 />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Student / Group Name (optional)</Label>
+              <Input
+                placeholder="e.g. Ahmed or Group A"
+                value={studentOrGroup}
+                onChange={(e) => setStudentOrGroup(e.target.value)}
+                maxLength={100}
+              />
             </div>
 
             <Button
