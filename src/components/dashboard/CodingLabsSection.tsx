@@ -20,7 +20,7 @@ const labs = [
     icon: Terminal,
     gradient: 'from-blue-500 to-cyan-500',
     url: '/dashboard/labs/python',
-    available: false,
+    available: true,
   },
   {
     key: 'roblox',
