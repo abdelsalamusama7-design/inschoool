@@ -111,8 +111,9 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     if (role === 'student' || role === 'instructor') {
       return [
         { title: 'Scratch Lab', icon: Code2, url: '/dashboard/labs/scratch' },
+        { title: 'Python Lab', icon: Terminal, url: '/dashboard/labs/python' },
+        { title: 'Roblox Lab', icon: Gamepad2, url: '/dashboard/labs/roblox' },
         { title: 'Minecraft Coding', icon: Blocks, url: '/dashboard/labs/minecraft' },
-        { title: 'Python Playground', icon: Terminal, url: '/dashboard/labs/python' },
         { title: 'Coding Gamification', icon: Gamepad2, url: '/dashboard/labs/gamification' },
       ];
     }
