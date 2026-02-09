@@ -1,32 +1,145 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Maximize2, Minimize2, Code2, BookOpen } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { ArrowLeft, Maximize2, Minimize2, Code2, BookOpen, CheckCircle, Send } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface ScratchCodingLabProps {
   scratchUrl: string;
   instructions?: string | null;
   lessonTitle: string;
+  lessonId: string;
   onClose: () => void;
+  onComplete?: () => void;
 }
 
-const ScratchCodingLab = ({ scratchUrl, instructions, lessonTitle, onClose }: ScratchCodingLabProps) => {
+const ScratchCodingLab = ({ scratchUrl, instructions, lessonTitle, lessonId, onClose, onComplete }: ScratchCodingLabProps) => {
+  const { user, role } = useAuth();
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [notes, setNotes] = useState('');
+  const [showSubmitPanel, setShowSubmitPanel] = useState(false);
 
-  // Convert Scratch project URL to embed URL
+  useEffect(() => {
+    if (user && role === 'student') {
+      checkCompletion();
+    }
+  }, [user, lessonId]);
+
+  const checkCompletion = async () => {
+    const { data } = await supabase
+      .from('scratch_activity_logs')
+      .select('id')
+      .eq('user_id', user!.id)
+      .eq('lesson_id', lessonId)
+      .maybeSingle();
+
+    if (data) setIsCompleted(true);
+  };
+
+  const handleSubmitActivity = async () => {
+    if (!user) return;
+    setSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from('scratch_activity_logs')
+        .insert({
+          user_id: user.id,
+          lesson_id: lessonId,
+          notes: notes || null,
+        });
+
+      if (error) {
+        if (error.code === '23505') {
+          toast.info('You already submitted this activity');
+          setIsCompleted(true);
+        } else {
+          throw error;
+        }
+      } else {
+        setIsCompleted(true);
+        toast.success('Activity marked as complete! 🎉');
+        onComplete?.();
+      }
+    } catch (error) {
+      console.error('Error submitting activity:', error);
+      toast.error('Failed to submit activity');
+    } finally {
+      setSubmitting(false);
+      setShowSubmitPanel(false);
+    }
+  };
+
   const getEmbedUrl = (url: string) => {
-    // Handle scratch.mit.edu/projects/ID format
     const projectMatch = url.match(/scratch\.mit\.edu\/projects\/(\d+)/);
     if (projectMatch) {
       return `https://scratch.mit.edu/projects/${projectMatch[1]}/embed`;
     }
-    // If it's already an embed URL or other format, use as-is
     if (url.includes('/embed')) return url;
-    // Fallback: try to append /embed
     return url.endsWith('/') ? `${url}embed` : `${url}/embed`;
   };
 
   const embedUrl = getEmbedUrl(scratchUrl);
+
+  const CompletionButton = () => {
+    if (role !== 'student') return null;
+
+    if (isCompleted) {
+      return (
+        <Badge className="bg-green-500/10 text-green-600 border-green-200 gap-1">
+          <CheckCircle className="w-3 h-3" />
+          Completed
+        </Badge>
+      );
+    }
+
+    return (
+      <Button
+        size="sm"
+        onClick={() => setShowSubmitPanel(true)}
+        className="gap-1"
+      >
+        <Send className="h-4 w-4" />
+        <span className="hidden sm:inline">Mark Complete</span>
+      </Button>
+    );
+  };
+
+  const SubmitPanel = () => {
+    if (!showSubmitPanel) return null;
+
+    return (
+      <Card className="border-primary/30">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <CheckCircle className="h-4 w-4 text-primary" />
+            Submit Activity
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <Textarea
+            placeholder="Add notes about what you built (optional)..."
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            rows={2}
+          />
+          <div className="flex gap-2">
+            <Button onClick={handleSubmitActivity} disabled={submitting} className="flex-1">
+              {submitting ? 'Submitting...' : 'Submit & Complete ✅'}
+            </Button>
+            <Button variant="outline" onClick={() => setShowSubmitPanel(false)}>
+              Cancel
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
 
   if (isFullscreen) {
     return (
@@ -37,6 +150,7 @@ const ScratchCodingLab = ({ scratchUrl, instructions, lessonTitle, onClose }: Sc
             <h2 className="font-bold text-sm sm:text-base">{lessonTitle} — Scratch Lab</h2>
           </div>
           <div className="flex items-center gap-2">
+            <CompletionButton />
             <Button variant="outline" size="sm" onClick={() => setIsFullscreen(false)}>
               <Minimize2 className="h-4 w-4 mr-1" />
               <span className="hidden sm:inline">Exit Fullscreen</span>
@@ -57,17 +171,20 @@ const ScratchCodingLab = ({ scratchUrl, instructions, lessonTitle, onClose }: Sc
               title="Scratch Coding Lab"
             />
           </div>
-          {instructions && (
-            <div className="lg:w-80 border-t lg:border-t-0 lg:border-l overflow-y-auto p-4 bg-card max-h-48 lg:max-h-full">
-              <div className="flex items-center gap-2 mb-3">
-                <BookOpen className="h-4 w-4 text-primary" />
-                <h3 className="font-semibold text-sm">Activity Instructions</h3>
+          <div className="lg:w-80 border-t lg:border-t-0 lg:border-l overflow-y-auto p-4 bg-card max-h-48 lg:max-h-full space-y-4">
+            {instructions && (
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <BookOpen className="h-4 w-4 text-primary" />
+                  <h3 className="font-semibold text-sm">Activity Instructions</h3>
+                </div>
+                <div className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
+                  {instructions}
+                </div>
               </div>
-              <div className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
-                {instructions}
-              </div>
-            </div>
-          )}
+            )}
+            <SubmitPanel />
+          </div>
         </div>
       </div>
     );
@@ -85,10 +202,13 @@ const ScratchCodingLab = ({ scratchUrl, instructions, lessonTitle, onClose }: Sc
             <h2 className="text-xl font-bold">Scratch Coding Lab</h2>
           </div>
         </div>
-        <Button variant="outline" size="sm" onClick={() => setIsFullscreen(true)}>
-          <Maximize2 className="h-4 w-4 mr-1" />
-          Full Screen
-        </Button>
+        <div className="flex items-center gap-2">
+          <CompletionButton />
+          <Button variant="outline" size="sm" onClick={() => setIsFullscreen(true)}>
+            <Maximize2 className="h-4 w-4 mr-1" />
+            Full Screen
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
@@ -107,22 +227,25 @@ const ScratchCodingLab = ({ scratchUrl, instructions, lessonTitle, onClose }: Sc
           </CardContent>
         </Card>
 
-        {/* Instructions Panel */}
-        {instructions && (
-          <Card className="h-fit lg:sticky lg:top-4">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <BookOpen className="h-4 w-4 text-primary" />
-                Activity Instructions
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
-                {instructions}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        {/* Right Panel: Instructions + Submit */}
+        <div className="space-y-4">
+          {instructions && (
+            <Card className="h-fit">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <BookOpen className="h-4 w-4 text-primary" />
+                  Activity Instructions
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
+                  {instructions}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          <SubmitPanel />
+        </div>
       </div>
     </div>
   );
