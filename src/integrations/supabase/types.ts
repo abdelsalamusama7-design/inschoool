@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      course_materials: {
+        Row: {
+          course_id: string
+          created_at: string
+          file_name: string
+          file_size: number | null
+          file_type: string | null
+          file_url: string
+          id: string
+          uploaded_by: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          file_name: string
+          file_size?: number | null
+          file_type?: string | null
+          file_url: string
+          id?: string
+          uploaded_by: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          file_name?: string
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string
+          id?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_materials_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       courses: {
         Row: {
           age_group: Database["public"]["Enums"]["age_group"]
@@ -21,6 +62,7 @@ export type Database = {
           description: string | null
           id: string
           instructor_id: string | null
+          thumbnail_url: string | null
           title: string
           updated_at: string
         }
@@ -30,6 +72,7 @@ export type Database = {
           description?: string | null
           id?: string
           instructor_id?: string | null
+          thumbnail_url?: string | null
           title: string
           updated_at?: string
         }
@@ -39,6 +82,7 @@ export type Database = {
           description?: string | null
           id?: string
           instructor_id?: string | null
+          thumbnail_url?: string | null
           title?: string
           updated_at?: string
         }
