@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { GraduationCap, Users, BookOpen } from 'lucide-react';
+import { GraduationCap, Users, BookOpen, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
@@ -111,6 +111,12 @@ const Auth = () => {
             <CardTitle className="text-2xl font-bold cursor-pointer">In School</CardTitle>
           </Link>
           <CardDescription>Educational platform for kids aged 6-18</CardDescription>
+          <Button variant="ghost" size="sm" className="mt-2" asChild>
+            <Link to="/" className="flex items-center gap-1 text-muted-foreground hover:text-foreground">
+              <ArrowRight className="w-4 h-4" />
+              العودة إلى الصفحة الرئيسية
+            </Link>
+          </Button>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="login" className="w-full">
