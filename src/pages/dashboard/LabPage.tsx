@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Blocks, Terminal, Gamepad2, Construction } from 'lucide-react';
 import ScratchLabPage from './ScratchLabPage';
+import PythonLabPage from './PythonLabPage';
 
 const labConfig: Record<string, { title: string; icon: React.ComponentType<{ className?: string }>; description: string; color: string }> = {
   minecraft: {
@@ -37,6 +38,11 @@ const LabPage = () => {
   // Scratch Lab is fully functional
   if (labType === 'scratch') {
     return <ScratchLabPage />;
+  }
+
+  // Python Lab is fully functional
+  if (labType === 'python') {
+    return <PythonLabPage />;
   }
 
   const config = labConfig[labType || ''];
