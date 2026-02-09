@@ -78,46 +78,67 @@ const SubscriptionStatus = () => {
     ? Math.max(0, Math.ceil((new Date(subscription.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
     : null;
 
+  const isExpiringSoon = daysRemaining !== null && daysRemaining <= 3 && daysRemaining > 0 && subscription?.status === 'active';
+
   return (
-    <Card className="border-primary/20">
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-sm font-medium flex items-center gap-2">
-          <Crown className="h-4 w-4 text-primary" />
-          الاشتراك الحالي
-        </CardTitle>
-        {subscription && getStatusBadge(subscription.status)}
-      </CardHeader>
-      <CardContent>
-        {subscription ? (
-          <div className="space-y-2">
-            <div className="text-2xl font-bold">{subscription.plan.name_ar}</div>
-            {subscription.plan.price > 0 && (
-              <p className="text-sm text-muted-foreground">{subscription.plan.price} جنيه/شهر</p>
-            )}
-            {daysRemaining !== null && subscription.status === 'active' && (
-              <p className="text-sm text-muted-foreground">
-                متبقي {daysRemaining} يوم
+    <div className="space-y-3">
+      {isExpiringSoon && (
+        <Card className="border-destructive/40 bg-destructive/5">
+          <CardContent className="flex items-center gap-3 py-3 px-4">
+            <AlertCircle className="h-5 w-5 text-destructive shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-destructive">
+                ⚠️ اشتراكك سينتهي خلال {daysRemaining} {daysRemaining === 1 ? 'يوم' : 'أيام'}!
               </p>
-            )}
-            {subscription.plan.max_lessons && (
-              <p className="text-xs text-muted-foreground">
-                الحد الأقصى: {subscription.plan.max_lessons} دروس
-              </p>
-            )}
-            <Button size="sm" variant="outline" className="mt-2 w-full" onClick={() => navigate('/dashboard/subscription')}>
-              ترقية الباقة
+              <p className="text-xs text-muted-foreground">جدّد اشتراكك الآن لتجنب فقدان الوصول للدروس</p>
+            </div>
+            <Button size="sm" variant="destructive" onClick={() => navigate('/dashboard/subscription')}>
+              جدّد الآن
             </Button>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">لا يوجد اشتراك حالي</p>
-            <Button size="sm" className="w-full" onClick={() => navigate('/dashboard/subscription')}>
-              اشترك الآن
-            </Button>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          </CardContent>
+        </Card>
+      )}
+
+      <Card className="border-primary/20">
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardTitle className="text-sm font-medium flex items-center gap-2">
+            <Crown className="h-4 w-4 text-primary" />
+            الاشتراك الحالي
+          </CardTitle>
+          {subscription && getStatusBadge(subscription.status)}
+        </CardHeader>
+        <CardContent>
+          {subscription ? (
+            <div className="space-y-2">
+              <div className="text-2xl font-bold">{subscription.plan.name_ar}</div>
+              {subscription.plan.price > 0 && (
+                <p className="text-sm text-muted-foreground">{subscription.plan.price} جنيه/شهر</p>
+              )}
+              {daysRemaining !== null && subscription.status === 'active' && (
+                <p className="text-sm text-muted-foreground">
+                  متبقي {daysRemaining} يوم
+                </p>
+              )}
+              {subscription.plan.max_lessons && (
+                <p className="text-xs text-muted-foreground">
+                  الحد الأقصى: {subscription.plan.max_lessons} دروس
+                </p>
+              )}
+              <Button size="sm" variant="outline" className="mt-2 w-full" onClick={() => navigate('/dashboard/subscription')}>
+                ترقية الباقة
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">لا يوجد اشتراك حالي</p>
+              <Button size="sm" className="w-full" onClick={() => navigate('/dashboard/subscription')}>
+                اشترك الآن
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
