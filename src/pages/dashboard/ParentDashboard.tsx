@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { BookOpen, CheckCircle, Clock, UserPlus, Users } from 'lucide-react';
 import { toast } from 'sonner';
+import WeeklyScheduleView from '@/components/dashboard/WeeklyScheduleView';
 
 interface LinkedStudent {
   id: string;
@@ -30,6 +31,7 @@ const ParentDashboard = () => {
   const { user, profile } = useAuth();
   const [linkedStudents, setLinkedStudents] = useState<LinkedStudent[]>([]);
   const [studentProgress, setStudentProgress] = useState<Map<string, StudentProgress[]>>(new Map());
+  const [studentCourseIds, setStudentCourseIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [studentEmail, setStudentEmail] = useState('');
   const [linkingStudent, setLinkingStudent] = useState(false);
@@ -88,6 +90,20 @@ const ParentDashboard = () => {
           }
           setStudentProgress(progressMap);
         }
+
+        // Fetch enrolled course IDs for all linked students
+        const allCourseIds = new Set<string>();
+        for (const studentId of studentIds) {
+          const { data: enrollments } = await supabase
+            .from('enrollments')
+            .select('course_id')
+            .eq('user_id', studentId);
+
+          if (enrollments) {
+            enrollments.forEach((e) => allCourseIds.add(e.course_id));
+          }
+        }
+        setStudentCourseIds(Array.from(allCourseIds));
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -289,6 +305,15 @@ const ParentDashboard = () => {
             );
           })}
         </div>
+      )}
+
+      {/* Weekly Schedule for linked students */}
+      {linkedStudents.length > 0 && (
+        <WeeklyScheduleView
+          courseIds={studentCourseIds}
+          title="جدول الحصص الأسبوعي"
+          description="مواعيد حصص أبنائك"
+        />
       )}
     </div>
   );
