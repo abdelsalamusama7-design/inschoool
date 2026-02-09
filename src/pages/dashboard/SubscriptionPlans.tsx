@@ -23,9 +23,8 @@ interface Plan {
 }
 
 const PAYMENT_METHODS = [
-  { value: 'vodafone_cash', label: 'فودافون كاش', icon: Smartphone, instructions: 'حوّل المبلغ على الرقم: 01XXXXXXXXX ثم ارفع صورة التحويل' },
-  { value: 'instapay', label: 'إنستاباي', icon: Building2, instructions: 'حوّل على حساب: username@instapay ثم ارفع صورة التحويل' },
-  { value: 'fawry', label: 'فوري', icon: CreditCard, instructions: 'ادفع برقم المرجع في أي فرع فوري ثم ارفع الإيصال' },
+  { value: 'instapay', label: 'إنستاباي', icon: Building2, instructions: 'حوّل المبلغ على الرقم: 01032320096 ثم ارفع صورة التحويل' },
+  { value: 'e_wallet', label: 'المحفظة الإلكترونية', icon: Smartphone, instructions: 'حوّل المبلغ على الرقم: 01227080430 ثم ارفع صورة التحويل' },
 ];
 
 const SubscriptionPlans = () => {
