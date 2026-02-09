@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { BookOpen, CheckCircle, Clock, GraduationCap } from 'lucide-react';
 import SubscriptionStatus from '@/components/dashboard/SubscriptionStatus';
 import WeeklyScheduleView from '@/components/dashboard/WeeklyScheduleView';
-import ScratchLabCard from '@/components/dashboard/ScratchLabCard';
+import CodingLabsSection from '@/components/dashboard/CodingLabsSection';
 
 interface Course {
   id: string;
@@ -146,8 +146,8 @@ const StudentDashboard = () => {
         </Card>
       </div>
 
-      {/* Scratch Lab Quick Access */}
-      <ScratchLabCard />
+      {/* Coding Labs */}
+      <CodingLabsSection />
 
       {/* Enrolled Courses */}
       <Card>

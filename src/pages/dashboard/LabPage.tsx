@@ -23,6 +23,12 @@ const labConfig: Record<string, { title: string; icon: React.ComponentType<{ cla
     description: 'Earn points, badges, and level up as you complete coding challenges.',
     color: 'bg-purple-500/10 text-purple-600 border-purple-200',
   },
+  roblox: {
+    title: 'Roblox Lab',
+    icon: Gamepad2,
+    description: 'Create immersive games and experiences in Roblox Studio.',
+    color: 'bg-red-500/10 text-red-600 border-red-200',
+  },
 };
 
 const LabPage = () => {
