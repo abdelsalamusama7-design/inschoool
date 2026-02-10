@@ -9,6 +9,7 @@ import SubscriptionStatus from '@/components/dashboard/SubscriptionStatus';
 import WeeklyScheduleView from '@/components/dashboard/WeeklyScheduleView';
 import CodingLabsSection from '@/components/dashboard/CodingLabsSection';
 import GamificationPanel from '@/components/dashboard/GamificationPanel';
+import UpcomingSessions from '@/components/dashboard/UpcomingSessions';
 
 interface Course {
   id: string;
@@ -197,6 +198,9 @@ const StudentDashboard = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Upcoming Live Sessions */}
+      <UpcomingSessions courseIds={enrolledCourseIds} />
 
       {/* Weekly Schedule */}
       <WeeklyScheduleView courseIds={enrolledCourseIds} />

@@ -37,6 +37,7 @@ import {
   Gamepad2,
   ChevronDown,
   Trophy,
+  Video,
 } from 'lucide-react';
 import {
   Collapsible,
@@ -101,6 +102,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         { title: 'Create Course', icon: Plus, url: '/dashboard/courses/new' },
         { title: 'Generate Lessons', icon: Sparkles, url: '/dashboard/curriculum-generator' },
         { title: 'Lessons', icon: List, url: '/dashboard/lessons' },
+        { title: 'Live Sessions', icon: Video, url: '/dashboard/live-sessions' },
         { title: 'Students', icon: Users, url: '/dashboard/students' },
         { title: 'Subscriptions', icon: CreditCard, url: '/dashboard/admin/subscriptions' },
         { title: 'Schedule', icon: Calendar, url: '/dashboard/schedule' },
