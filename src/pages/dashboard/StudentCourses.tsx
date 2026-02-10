@@ -6,8 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BookOpen, CheckCircle, Play } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { BookOpen, CheckCircle, Play, ChevronLeft, Video, FileText, Code2 } from 'lucide-react';
 import { toast } from 'sonner';
+import ScratchCodingLab from '@/components/dashboard/ScratchCodingLab';
 
 interface Course {
   id: string;
@@ -23,6 +25,9 @@ interface Lesson {
   content: string;
   video_url: string;
   course_id: string;
+  scratch_enabled: boolean;
+  scratch_url: string | null;
+  scratch_instructions: string | null;
 }
 
 const StudentCourses = () => {
@@ -32,6 +37,8 @@ const StudentCourses = () => {
   const [lessons, setLessons] = useState<Map<string, Lesson[]>>(new Map());
   const [progress, setProgress] = useState<Map<string, boolean>>(new Map());
   const [loading, setLoading] = useState(true);
+  const [openLesson, setOpenLesson] = useState<Lesson | null>(null);
+  const [activeScratchLesson, setActiveScratchLesson] = useState<Lesson | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -41,12 +48,10 @@ const StudentCourses = () => {
 
   const fetchData = async () => {
     try {
-      // Fetch all courses
       const { data: allCourses } = await supabase
         .from('courses')
         .select('*');
 
-      // Fetch user enrollments
       const { data: enrollments } = await supabase
         .from('enrollments')
         .select('course_id')
@@ -58,7 +63,6 @@ const StudentCourses = () => {
         setEnrolledCourses(allCourses.filter(c => enrolledIds.has(c.id)));
         setAvailableCourses(allCourses.filter(c => !enrolledIds.has(c.id)));
 
-        // Fetch lessons for enrolled courses
         const lessonMap = new Map<string, Lesson[]>();
         for (const course of allCourses.filter(c => enrolledIds.has(c.id))) {
           const { data: courseLessons } = await supabase
@@ -74,7 +78,6 @@ const StudentCourses = () => {
         setLessons(lessonMap);
       }
 
-      // Fetch progress
       const { data: progressData } = await supabase
         .from('progress')
         .select('lesson_id, completed')
@@ -139,7 +142,6 @@ const StudentCourses = () => {
           });
       }
 
-      // Update local state
       setProgress(prev => {
         const newMap = new Map(prev);
         newMap.set(lessonId, !currentStatus);
@@ -153,8 +155,30 @@ const StudentCourses = () => {
     }
   };
 
+  const getEmbedUrl = (url: string) => {
+    if (!url) return null;
+    // YouTube
+    const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([a-zA-Z0-9_-]{11})/);
+    if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
+    return url;
+  };
+
   if (loading) {
     return <div className="flex items-center justify-center h-64">Loading...</div>;
+  }
+
+  // Scratch lab full screen
+  if (activeScratchLesson) {
+    return (
+      <ScratchCodingLab
+        scratchUrl={activeScratchLesson.scratch_url || 'https://scratch.mit.edu/projects/editor/'}
+        instructions={activeScratchLesson.scratch_instructions}
+        lessonTitle={activeScratchLesson.title}
+        lessonId={activeScratchLesson.id}
+        onClose={() => setActiveScratchLesson(null)}
+        onComplete={() => {}}
+      />
+    );
   }
 
   return (
@@ -213,13 +237,14 @@ const StudentCourses = () => {
                           return (
                             <div
                               key={lesson.id}
-                              className={`flex items-center justify-between p-3 rounded-lg border ${
-                                isCompleted ? 'bg-green-50 border-green-200' : 'bg-muted/50'
+                              className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-colors hover:border-primary/50 ${
+                                isCompleted ? 'bg-primary/5 border-primary/20' : 'bg-muted/50'
                               }`}
+                              onClick={() => setOpenLesson(lesson)}
                             >
                               <div className="flex items-center gap-3">
                                 <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                                  isCompleted ? 'bg-green-500 text-white' : 'bg-primary/10 text-primary'
+                                  isCompleted ? 'bg-primary text-primary-foreground' : 'bg-primary/10 text-primary'
                                 }`}>
                                   {isCompleted ? <CheckCircle className="w-4 h-4" /> : index + 1}
                                 </div>
@@ -228,14 +253,34 @@ const StudentCourses = () => {
                                   {lesson.description && (
                                     <p className="text-sm text-muted-foreground">{lesson.description}</p>
                                   )}
+                                  <div className="flex items-center gap-2 mt-1">
+                                    {lesson.video_url && (
+                                      <Badge variant="outline" className="text-xs gap-1">
+                                        <Video className="w-3 h-3" /> فيديو
+                                      </Badge>
+                                    )}
+                                    {lesson.content && (
+                                      <Badge variant="outline" className="text-xs gap-1">
+                                        <FileText className="w-3 h-3" /> محتوى
+                                      </Badge>
+                                    )}
+                                    {lesson.scratch_enabled && (
+                                      <Badge variant="outline" className="text-xs gap-1">
+                                        <Code2 className="w-3 h-3" /> Scratch
+                                      </Badge>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
                               <Button
                                 variant={isCompleted ? "outline" : "default"}
                                 size="sm"
-                                onClick={() => toggleLessonComplete(lesson.id, isCompleted)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleLessonComplete(lesson.id, isCompleted);
+                                }}
                               >
-                                {isCompleted ? 'Completed' : 'Mark Complete'}
+                                {isCompleted ? 'مكتمل ✓' : 'إكمال'}
                               </Button>
                             </div>
                           );
@@ -283,6 +328,99 @@ const StudentCourses = () => {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Lesson Detail Dialog */}
+      <Dialog open={!!openLesson} onOpenChange={(open) => !open && setOpenLesson(null)}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          {openLesson && (
+            <>
+              <DialogHeader>
+                <div className="flex items-center gap-3">
+                  <DialogTitle className="text-xl">{openLesson.title}</DialogTitle>
+                  {progress.get(openLesson.id) && (
+                    <Badge className="bg-primary/10 text-primary border-primary/20">مكتمل ✓</Badge>
+                  )}
+                </div>
+                {openLesson.description && (
+                  <p className="text-muted-foreground mt-1">{openLesson.description}</p>
+                )}
+              </DialogHeader>
+
+              <div className="space-y-6 mt-4">
+                {/* Video */}
+                {openLesson.video_url && (
+                  <div className="space-y-2">
+                    <h3 className="font-semibold flex items-center gap-2">
+                      <Video className="w-4 h-4 text-primary" /> الفيديو
+                    </h3>
+                    <div className="aspect-video rounded-lg overflow-hidden bg-muted">
+                      <iframe
+                        src={getEmbedUrl(openLesson.video_url) || openLesson.video_url}
+                        className="w-full h-full"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Content */}
+                {openLesson.content && (
+                  <div className="space-y-2">
+                    <h3 className="font-semibold flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-primary" /> المحتوى
+                    </h3>
+                    <div className="prose prose-sm max-w-none p-4 rounded-lg bg-muted/30 border whitespace-pre-wrap">
+                      {openLesson.content}
+                    </div>
+                  </div>
+                )}
+
+                {/* Scratch Lab */}
+                {openLesson.scratch_enabled && openLesson.scratch_url && (
+                  <div className="space-y-2">
+                    <h3 className="font-semibold flex items-center gap-2">
+                      <Code2 className="w-4 h-4 text-primary" /> معمل Scratch
+                    </h3>
+                    {openLesson.scratch_instructions && (
+                      <p className="text-sm text-muted-foreground bg-muted/30 p-3 rounded-lg">
+                        {openLesson.scratch_instructions}
+                      </p>
+                    )}
+                    <Button
+                      onClick={() => {
+                        setOpenLesson(null);
+                        setActiveScratchLesson(openLesson);
+                      }}
+                      className="w-full"
+                    >
+                      <Code2 className="w-4 h-4 mr-2" />
+                      فتح معمل Scratch
+                    </Button>
+                  </div>
+                )}
+
+                {/* No content message */}
+                {!openLesson.video_url && !openLesson.content && !openLesson.scratch_enabled && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <FileText className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                    <p>لا يوجد محتوى لهذا الدرس بعد</p>
+                  </div>
+                )}
+
+                {/* Mark Complete Button */}
+                <Button
+                  variant={progress.get(openLesson.id) ? "outline" : "default"}
+                  className="w-full"
+                  onClick={() => toggleLessonComplete(openLesson.id, progress.get(openLesson.id) || false)}
+                >
+                  {progress.get(openLesson.id) ? 'تم الإكمال ✓ - اضغط للتراجع' : 'تحديد كمكتمل'}
+                </Button>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
