@@ -75,6 +75,10 @@ const ScratchCodingLab = ({ scratchUrl, instructions, lessonTitle, lessonId, onC
     }
   };
 
+  const isEditorUrl = (url: string) => {
+    return url.includes('/editor') || !url.match(/scratch\.mit\.edu\/projects\/(\d+)/);
+  };
+
   const getEmbedUrl = (url: string) => {
     const projectMatch = url.match(/scratch\.mit\.edu\/projects\/(\d+)/);
     if (projectMatch) {
@@ -84,7 +88,8 @@ const ScratchCodingLab = ({ scratchUrl, instructions, lessonTitle, lessonId, onC
     return url.endsWith('/') ? `${url}embed` : `${url}/embed`;
   };
 
-  const embedUrl = getEmbedUrl(scratchUrl);
+  const editorMode = isEditorUrl(scratchUrl);
+  const embedUrl = editorMode ? '' : getEmbedUrl(scratchUrl);
 
   const CompletionButton = () => {
     if (role !== 'student') return null;
@@ -163,13 +168,24 @@ const ScratchCodingLab = ({ scratchUrl, instructions, lessonTitle, lessonId, onC
         </div>
         <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
           <div className="flex-1 min-h-0">
-            <iframe
-              src={embedUrl}
-              className="w-full h-full border-0"
-              allowFullScreen
-              sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-              title="Scratch Coding Lab"
-            />
+            {editorMode ? (
+              <div className="w-full h-full flex flex-col items-center justify-center bg-muted/30 gap-4">
+                <Code2 className="w-16 h-16 text-primary opacity-50" />
+                <p className="text-muted-foreground text-center">محرر Scratch لا يدعم التضمين داخل الصفحة</p>
+                <Button onClick={() => window.open(scratchUrl, '_blank')} size="lg">
+                  <Maximize2 className="w-4 h-4 mr-2" />
+                  فتح محرر Scratch في نافذة جديدة
+                </Button>
+              </div>
+            ) : (
+              <iframe
+                src={embedUrl}
+                className="w-full h-full border-0"
+                allowFullScreen
+                sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+                title="Scratch Coding Lab"
+              />
+            )}
           </div>
           <div className="lg:w-80 border-t lg:border-t-0 lg:border-l overflow-y-auto p-4 bg-card max-h-48 lg:max-h-full space-y-4">
             {instructions && (
@@ -215,15 +231,26 @@ const ScratchCodingLab = ({ scratchUrl, instructions, lessonTitle, lessonId, onC
         {/* Scratch Embed */}
         <Card className="overflow-hidden">
           <CardContent className="p-0">
-            <div className="aspect-[4/3] w-full">
-              <iframe
-                src={embedUrl}
-                className="w-full h-full border-0"
-                allowFullScreen
-                sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-                title="Scratch Coding Lab"
-              />
-            </div>
+            {editorMode ? (
+              <div className="aspect-[4/3] w-full flex flex-col items-center justify-center bg-muted/30 gap-4">
+                <Code2 className="w-16 h-16 text-primary opacity-50" />
+                <p className="text-muted-foreground text-center">محرر Scratch لا يدعم التضمين داخل الصفحة</p>
+                <Button onClick={() => window.open(scratchUrl, '_blank')} size="lg">
+                  <Maximize2 className="w-4 h-4 mr-2" />
+                  فتح محرر Scratch في نافذة جديدة
+                </Button>
+              </div>
+            ) : (
+              <div className="aspect-[4/3] w-full">
+                <iframe
+                  src={embedUrl}
+                  className="w-full h-full border-0"
+                  allowFullScreen
+                  sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+                  title="Scratch Coding Lab"
+                />
+              </div>
+            )}
           </CardContent>
         </Card>
 
