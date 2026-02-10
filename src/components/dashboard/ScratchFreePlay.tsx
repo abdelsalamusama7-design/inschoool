@@ -1,6 +1,13 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ArrowLeft, ExternalLink, Code2, Rocket, Lightbulb, Star, Zap, Target } from 'lucide-react';
+import TutorialVideos from './TutorialVideos';
+
+const scratchVideos = [
+  { videoId: 'VIpmkeqJhmQ', title: 'Scratch Tutorial for Beginners', description: 'Learn the basics of Scratch programming' },
+  { videoId: '0eJTGJc0JlE', title: 'Make a Game in Scratch', description: 'Create your first Scratch game step by step' },
+  { videoId: 'QXjKa9l4M04', title: 'Scratch Animation Tutorial', description: 'Learn to make cool animations' },
+];
 
 interface ScratchFreePlayProps {
   onClose: () => void;
@@ -82,6 +89,9 @@ const ScratchFreePlay = ({ onClose }: ScratchFreePlayProps) => {
           ))}
         </div>
       </div>
+
+      {/* Tutorial Videos */}
+      <TutorialVideos videos={scratchVideos} accentColor="text-amber-500" />
     </div>
   );
 };
