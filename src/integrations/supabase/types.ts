@@ -562,6 +562,16 @@ export type Database = {
           student_user_id: string
         }[]
       }
+      get_leaderboard: {
+        Args: { limit_count?: number }
+        Returns: {
+          avatar_url: string
+          badges_json: Json
+          full_name: string
+          total_points: number
+          user_id: string
+        }[]
+      }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
