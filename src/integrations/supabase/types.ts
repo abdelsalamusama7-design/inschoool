@@ -124,7 +124,10 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          minecraft_enabled: boolean
           order_index: number | null
+          python_enabled: boolean
+          roblox_enabled: boolean
           scratch_enabled: boolean
           scratch_instructions: string | null
           scratch_url: string | null
@@ -138,7 +141,10 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          minecraft_enabled?: boolean
           order_index?: number | null
+          python_enabled?: boolean
+          roblox_enabled?: boolean
           scratch_enabled?: boolean
           scratch_instructions?: string | null
           scratch_url?: string | null
@@ -152,7 +158,10 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          minecraft_enabled?: boolean
           order_index?: number | null
+          python_enabled?: boolean
+          roblox_enabled?: boolean
           scratch_enabled?: boolean
           scratch_instructions?: string | null
           scratch_url?: string | null
