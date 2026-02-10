@@ -88,7 +88,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     if (role === 'parent') {
       return [
         ...baseItems,
-        { title: 'My Student', icon: Users, url: '/dashboard/student' },
         { title: 'Progress', icon: BarChart3, url: '/dashboard/progress' },
         { title: 'Leaderboard', icon: Trophy, url: '/dashboard/leaderboard' },
       ];
