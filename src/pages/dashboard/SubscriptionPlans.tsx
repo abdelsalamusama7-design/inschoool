@@ -78,7 +78,7 @@ const SubscriptionPlans = () => {
   const { user, role } = useAuth();
   const { toast } = useToast();
   const [plans, setPlans] = useState<Plan[]>([]);
-  const [currentPlan, setCurrentPlan] = useState<string | null>(null);
+  const [currentPlans, setCurrentPlans] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [paymentMethod, setPaymentMethod] = useState('');
@@ -155,11 +155,9 @@ const SubscriptionPlans = () => {
       .select('plan_id, status')
       .eq('user_id', userId)
       .in('status', ['active', 'pending'])
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
+      .order('created_at', { ascending: false });
 
-    setCurrentPlan(data ? data.plan_id : null);
+    setCurrentPlans(data ? data.map(s => s.plan_id) : []);
   };
 
   const handleSubscribe = async () => {
@@ -229,7 +227,7 @@ const SubscriptionPlans = () => {
       setPaymentMethod('');
       setReferenceNumber('');
       setScreenshot(null);
-      setCurrentPlan(selectedPlan.id);
+      setCurrentPlans(prev => [...prev, selectedPlan.id]);
     } catch (error: any) {
       toast({ title: 'خطأ', description: error.message, variant: 'destructive' });
     } finally {
@@ -288,7 +286,7 @@ const SubscriptionPlans = () => {
 
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {plans.map((plan) => {
-          const isCurrent = currentPlan === plan.id;
+          const isCurrent = currentPlans.includes(plan.id);
           const isBestValue = plan.id === bestValuePlanId;
           const isQuran = isQuranPlan(plan);
 
