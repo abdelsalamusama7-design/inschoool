@@ -29,8 +29,14 @@ interface Lesson {
   scratch_url: string | null;
   scratch_instructions: string | null;
   python_enabled: boolean;
+  python_url: string | null;
+  python_instructions: string | null;
   roblox_enabled: boolean;
+  roblox_url: string | null;
+  roblox_instructions: string | null;
   minecraft_enabled: boolean;
+  minecraft_url: string | null;
+  minecraft_instructions: string | null;
 }
 
 const StudentCourses = () => {
@@ -424,8 +430,13 @@ const StudentCourses = () => {
                     <h3 className="font-semibold flex items-center gap-2">
                       <Code2 className="w-4 h-4 text-primary" /> معمل Python
                     </h3>
+                    {openLesson.python_instructions && (
+                      <p className="text-sm text-muted-foreground bg-muted/30 p-3 rounded-lg">
+                        {openLesson.python_instructions}
+                      </p>
+                    )}
                     <Button
-                      onClick={() => window.open('/dashboard/labs/python', '_blank')}
+                      onClick={() => window.open(openLesson.python_url || '/dashboard/labs/python', '_blank')}
                       variant="outline"
                       className="w-full"
                     >
@@ -441,8 +452,13 @@ const StudentCourses = () => {
                     <h3 className="font-semibold flex items-center gap-2">
                       <Code2 className="w-4 h-4 text-primary" /> معمل Roblox
                     </h3>
+                    {openLesson.roblox_instructions && (
+                      <p className="text-sm text-muted-foreground bg-muted/30 p-3 rounded-lg">
+                        {openLesson.roblox_instructions}
+                      </p>
+                    )}
                     <Button
-                      onClick={() => window.open('/dashboard/labs/roblox', '_blank')}
+                      onClick={() => window.open(openLesson.roblox_url || '/dashboard/labs/roblox', '_blank')}
                       variant="outline"
                       className="w-full"
                     >
@@ -458,8 +474,13 @@ const StudentCourses = () => {
                     <h3 className="font-semibold flex items-center gap-2">
                       <Code2 className="w-4 h-4 text-primary" /> معمل Minecraft
                     </h3>
+                    {openLesson.minecraft_instructions && (
+                      <p className="text-sm text-muted-foreground bg-muted/30 p-3 rounded-lg">
+                        {openLesson.minecraft_instructions}
+                      </p>
+                    )}
                     <Button
-                      onClick={() => window.open('/dashboard/labs/minecraft', '_blank')}
+                      onClick={() => window.open(openLesson.minecraft_url || '/dashboard/labs/minecraft', '_blank')}
                       variant="outline"
                       className="w-full"
                     >

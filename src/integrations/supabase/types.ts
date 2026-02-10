@@ -125,9 +125,15 @@ export type Database = {
           description: string | null
           id: string
           minecraft_enabled: boolean
+          minecraft_instructions: string | null
+          minecraft_url: string | null
           order_index: number | null
           python_enabled: boolean
+          python_instructions: string | null
+          python_url: string | null
           roblox_enabled: boolean
+          roblox_instructions: string | null
+          roblox_url: string | null
           scratch_enabled: boolean
           scratch_instructions: string | null
           scratch_url: string | null
@@ -142,9 +148,15 @@ export type Database = {
           description?: string | null
           id?: string
           minecraft_enabled?: boolean
+          minecraft_instructions?: string | null
+          minecraft_url?: string | null
           order_index?: number | null
           python_enabled?: boolean
+          python_instructions?: string | null
+          python_url?: string | null
           roblox_enabled?: boolean
+          roblox_instructions?: string | null
+          roblox_url?: string | null
           scratch_enabled?: boolean
           scratch_instructions?: string | null
           scratch_url?: string | null
@@ -159,9 +171,15 @@ export type Database = {
           description?: string | null
           id?: string
           minecraft_enabled?: boolean
+          minecraft_instructions?: string | null
+          minecraft_url?: string | null
           order_index?: number | null
           python_enabled?: boolean
+          python_instructions?: string | null
+          python_url?: string | null
           roblox_enabled?: boolean
+          roblox_instructions?: string | null
+          roblox_url?: string | null
           scratch_enabled?: boolean
           scratch_instructions?: string | null
           scratch_url?: string | null
