@@ -17,6 +17,13 @@ import {
 import { usePyodide } from '@/hooks/usePyodide';
 import { pythonChallenges, PythonChallenge } from '@/data/pythonChallenges';
 import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
+import TutorialVideos from '@/components/dashboard/TutorialVideos';
+
+const pythonVideos = [
+  { videoId: 'kqtD5dpn9C8', title: 'Python for Beginners', description: 'Learn Python basics in one video' },
+  { videoId: 'rfscVS0vtbw', title: 'Python Full Course', description: 'Complete Python tutorial for beginners' },
+  { videoId: 'pdy3nh1tn6I', title: 'Python Projects for Kids', description: 'Fun Python projects to build' },
+];
 
 const DEFAULT_CODE = '# Welcome to Python Lab! 🐍\n# Write your code here and click Run\n\nprint("Hello from Python Lab!")\n';
 
@@ -292,6 +299,9 @@ const PythonLabPage = () => {
           </Card>
         </div>
       </div>
+
+      {/* Tutorial Videos */}
+      <TutorialVideos videos={pythonVideos} accentColor="text-blue-500" />
     </div>
   );
 };

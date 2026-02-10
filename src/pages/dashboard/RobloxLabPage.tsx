@@ -3,6 +3,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ExternalLink, Gamepad2, Lightbulb, Star, Zap, Target, Rocket, Video, BookOpen } from 'lucide-react';
 import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
+import TutorialVideos from '@/components/dashboard/TutorialVideos';
+
+const robloxVideos = [
+  { videoId: 'FRMnSPMu3Xg', title: 'Roblox Studio Beginner Tutorial', description: 'Get started with Roblox Studio' },
+  { videoId: 'LuCnNHCXhkE', title: 'How to Script in Roblox', description: 'Learn Luau scripting basics' },
+  { videoId: 'lRf9vjr3cGY', title: 'Make an Obby in Roblox', description: 'Build your first obstacle course game' },
+];
 
 const ROBLOX_STUDIO_URL = 'https://www.roblox.com/create';
 const ROBLOX_LEARN_URL = 'https://create.roblox.com/docs';
@@ -108,6 +115,9 @@ const RobloxLabPage = () => {
           ))}
         </div>
       </div>
+
+      {/* Tutorial Videos */}
+      <TutorialVideos videos={robloxVideos} accentColor="text-red-500" />
     </div>
   );
 };

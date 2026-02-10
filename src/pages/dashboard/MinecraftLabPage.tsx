@@ -3,6 +3,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ExternalLink, Blocks, Lightbulb, Star, Zap, Target, Rocket, BookOpen, Code2 } from 'lucide-react';
 import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
+import TutorialVideos from '@/components/dashboard/TutorialVideos';
+
+const minecraftVideos = [
+  { videoId: 'UhKDMEB9EBs', title: 'MakeCode for Minecraft Tutorial', description: 'Learn to code Minecraft with blocks' },
+  { videoId: 'wNBKxLjB4vE', title: 'Minecraft Agent Coding', description: 'Program your Agent to build structures' },
+  { videoId: 'MPbNXLE2eKk', title: 'Minecraft Education Edition', description: 'Getting started with coding in Minecraft' },
+];
 
 const MINECRAFT_EDU_URL = 'https://education.minecraft.net/';
 const MAKECODE_URL = 'https://minecraft.makecode.com/';
@@ -108,6 +115,9 @@ const MinecraftLabPage = () => {
           ))}
         </div>
       </div>
+
+      {/* Tutorial Videos */}
+      <TutorialVideos videos={minecraftVideos} accentColor="text-green-500" />
     </div>
   );
 };
