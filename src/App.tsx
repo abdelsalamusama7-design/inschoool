@@ -68,7 +68,7 @@ const App = () => (
             <Route
               path="/dashboard/subscription"
               element={
-                <ProtectedRoute allowedRoles={['student']}>
+                <ProtectedRoute allowedRoles={['student', 'parent']}>
                   <SubscriptionPage />
                 </ProtectedRoute>
               }
