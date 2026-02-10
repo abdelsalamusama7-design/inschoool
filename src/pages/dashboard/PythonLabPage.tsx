@@ -301,7 +301,7 @@ const PythonLabPage = () => {
       </div>
 
       {/* Tutorial Videos */}
-      <TutorialVideos videos={pythonVideos} accentColor="text-blue-500" />
+      <TutorialVideos videos={pythonVideos} accentColor="text-blue-500" labType="python" />
     </div>
   );
 };

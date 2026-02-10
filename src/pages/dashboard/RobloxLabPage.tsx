@@ -129,7 +129,7 @@ const RobloxLabPage = () => {
       </div>
 
       {/* Tutorial Videos */}
-      <TutorialVideos videos={robloxVideos} accentColor="text-red-500" />
+      <TutorialVideos videos={robloxVideos} accentColor="text-red-500" labType="roblox" />
     </div>
   );
 };

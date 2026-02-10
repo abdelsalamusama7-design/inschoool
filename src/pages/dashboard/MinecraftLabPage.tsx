@@ -129,7 +129,7 @@ const MinecraftLabPage = () => {
       </div>
 
       {/* Tutorial Videos */}
-      <TutorialVideos videos={minecraftVideos} accentColor="text-green-500" />
+      <TutorialVideos videos={minecraftVideos} accentColor="text-green-500" labType="minecraft" />
     </div>
   );
 };
