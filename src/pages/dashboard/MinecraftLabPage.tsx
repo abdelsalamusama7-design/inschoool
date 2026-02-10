@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { ExternalLink, Blocks, Lightbulb, Star, Zap, Target, Rocket, BookOpen, Code2 } from 'lucide-react';
 import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 import TutorialVideos from '@/components/dashboard/TutorialVideos';
@@ -43,76 +44,87 @@ const MinecraftLabPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Header */}
       <div className="flex items-center gap-3">
         <div className="p-3 rounded-xl bg-green-500/10 text-green-600 border border-green-200">
           <Blocks className="w-6 h-6" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold">Minecraft Coding</h1>
+          <h1 className="text-2xl font-bold">Minecraft Coding ⛏️</h1>
           <p className="text-muted-foreground">Learn to code by building and automating in the Minecraft world</p>
         </div>
       </div>
 
-      {/* Main CTA Card */}
-      <Card className="overflow-hidden border-2 border-green-200/50">
-        <div className="h-2 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-400" />
-        <CardContent className="p-8 flex flex-col items-center text-center gap-5">
-          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center shadow-xl">
-            <Rocket className="w-10 h-10 text-white" />
-          </div>
-          <div className="space-y-2">
-            <h3 className="text-2xl font-bold">Ready to Code in Minecraft? ⛏️</h3>
-            <p className="text-muted-foreground max-w-md">
-              Use Microsoft MakeCode to write code that controls your Minecraft world — build structures, automate tasks, and create mini-games!
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-3 justify-center">
-            <Button
-              size="lg"
-              className="gap-2 text-base px-8 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
-              onClick={openMakeCode}
-            >
-              <ExternalLink className="h-5 w-5" />
-              Open MakeCode
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="gap-2 text-base px-6"
-              onClick={openMinecraftEdu}
-            >
-              <BookOpen className="h-5 w-5" />
-              Minecraft Education
-            </Button>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            💡 MakeCode works in the browser — no installation needed!
-          </p>
-        </CardContent>
-      </Card>
+      <div className="grid gap-4 lg:grid-cols-[1fr_300px]">
+        {/* Left: Main Content */}
+        <div className="space-y-4">
+          {/* Main CTA Card */}
+          <Card className="overflow-hidden border-2 border-green-200/50">
+            <div className="h-2 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-400" />
+            <CardContent className="p-8 flex flex-col items-center text-center gap-5">
+              <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center shadow-xl">
+                <Rocket className="w-10 h-10 text-white" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-2xl font-bold">Ready to Code in Minecraft? ⛏️</h3>
+                <p className="text-muted-foreground max-w-md">
+                  Use Microsoft MakeCode to write code that controls your Minecraft world — build structures, automate tasks, and create mini-games!
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-3 justify-center">
+                <Button
+                  size="lg"
+                  className="gap-2 text-base px-8 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                  onClick={openMakeCode}
+                >
+                  <ExternalLink className="h-5 w-5" />
+                  Open MakeCode
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="gap-2 text-base px-6"
+                  onClick={openMinecraftEdu}
+                >
+                  <BookOpen className="h-5 w-5" />
+                  Minecraft Education
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                💡 MakeCode works in the browser — no installation needed!
+              </p>
+            </CardContent>
+          </Card>
+        </div>
 
-      {/* Tips Grid */}
-      <div className="space-y-3">
-        <h3 className="text-lg font-semibold flex items-center gap-2">
-          <Lightbulb className="h-5 w-5 text-green-500" />
-          Tips & Getting Started
-        </h3>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {tips.map((tip, i) => (
-            <Card key={i} className="hover:shadow-sm transition-shadow">
-              <CardContent className="p-4 flex items-start gap-3">
-                <div className="w-9 h-9 rounded-xl bg-green-500/10 flex items-center justify-center shrink-0">
-                  <tip.icon className="w-4 h-4 text-green-600" />
+        {/* Right: Tips Sidebar */}
+        <div className="space-y-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Lightbulb className="h-4 w-4 text-green-500" />
+                Tips & Getting Started
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <ScrollArea className="h-[500px]">
+                <div className="p-3 space-y-2">
+                  {tips.map((tip, i) => (
+                    <div key={i} className="p-3 rounded-lg border border-transparent hover:bg-muted/80 transition-colors">
+                      <div className="flex items-center gap-2 mb-1">
+                        <div className="w-7 h-7 rounded-lg bg-green-500/10 flex items-center justify-center shrink-0">
+                          <tip.icon className="w-3.5 h-3.5 text-green-600" />
+                        </div>
+                        <span className="text-sm font-medium">{tip.title}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground ml-9">{tip.text}</p>
+                    </div>
+                  ))}
                 </div>
-                <div>
-                  <p className="text-sm font-medium">{tip.title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{tip.text}</p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+              </ScrollArea>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
