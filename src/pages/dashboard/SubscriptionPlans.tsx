@@ -275,11 +275,7 @@ const SubscriptionPlans = () => {
                   <SelectContent>
                     {linkedStudents.map((student) => (
                       <SelectItem key={student.id} value={student.id}>
-                        <div className="flex items-center gap-2">
-                          <Users className="w-4 h-4" />
-                          <span>{student.full_name}</span>
-                          <span className="text-muted-foreground text-xs">({student.email})</span>
-                        </div>
+                        {student.full_name} ({student.email})
                       </SelectItem>
                     ))}
                   </SelectContent>
