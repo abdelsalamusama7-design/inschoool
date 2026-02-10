@@ -68,8 +68,14 @@ const getSessionCount = (maxLessons: number | null) => {
   return maxLessons ? `${maxLessons} Sessions` : 'Unlimited';
 };
 
+interface LinkedStudent {
+  id: string;
+  full_name: string;
+  email: string;
+}
+
 const SubscriptionPlans = () => {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const { toast } = useToast();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [currentPlan, setCurrentPlan] = useState<string | null>(null);
@@ -80,10 +86,52 @@ const SubscriptionPlans = () => {
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  // Parent-specific state
+  const isParent = role === 'parent';
+  const [linkedStudents, setLinkedStudents] = useState<LinkedStudent[]>([]);
+  const [selectedStudentId, setSelectedStudentId] = useState<string>('');
+
   useEffect(() => {
     fetchPlans();
-    if (user) fetchCurrentSubscription();
+    if (user && isParent) {
+      fetchLinkedStudents();
+    } else if (user) {
+      fetchCurrentSubscription(user.id);
+    }
   }, [user]);
+
+  useEffect(() => {
+    if (selectedStudentId) {
+      fetchCurrentSubscription(selectedStudentId);
+    }
+  }, [selectedStudentId]);
+
+  const fetchLinkedStudents = async () => {
+    const { data: links } = await supabase
+      .from('student_parent_links')
+      .select('student_id')
+      .eq('parent_id', user!.id);
+
+    if (!links || links.length === 0) return;
+
+    const studentIds = links.map(l => l.student_id);
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('user_id, full_name, email')
+      .in('user_id', studentIds);
+
+    if (profiles) {
+      const students = profiles.map(p => ({
+        id: p.user_id,
+        full_name: p.full_name,
+        email: p.email,
+      }));
+      setLinkedStudents(students);
+      if (students.length === 1) {
+        setSelectedStudentId(students[0].id);
+      }
+    }
+  };
 
   const fetchPlans = async () => {
     const { data } = await supabase
@@ -101,21 +149,28 @@ const SubscriptionPlans = () => {
     setLoading(false);
   };
 
-  const fetchCurrentSubscription = async () => {
+  const fetchCurrentSubscription = async (userId: string) => {
     const { data } = await supabase
       .from('subscriptions')
       .select('plan_id, status')
-      .eq('user_id', user!.id)
+      .eq('user_id', userId)
       .in('status', ['active', 'pending'])
       .order('created_at', { ascending: false })
       .limit(1)
       .single();
 
-    if (data) setCurrentPlan(data.plan_id);
+    setCurrentPlan(data ? data.plan_id : null);
   };
 
   const handleSubscribe = async () => {
     if (!selectedPlan || !user) return;
+
+    const targetUserId = isParent ? selectedStudentId : user.id;
+
+    if (isParent && !targetUserId) {
+      toast({ title: 'اختر الطالب أولاً', variant: 'destructive' });
+      return;
+    }
 
     if (!paymentMethod) {
       toast({ title: 'اختر طريقة الدفع', variant: 'destructive' });
@@ -128,7 +183,7 @@ const SubscriptionPlans = () => {
       const { data: sub, error: subError } = await supabase
         .from('subscriptions')
         .insert({
-          user_id: user.id,
+          user_id: targetUserId,
           plan_id: selectedPlan.id,
           status: 'pending',
         })
@@ -154,7 +209,7 @@ const SubscriptionPlans = () => {
       }
 
       const { error: payError } = await supabase.from('payment_requests').insert({
-        user_id: user.id,
+        user_id: targetUserId,
         subscription_id: sub.id,
         plan_id: selectedPlan.id,
         payment_method: paymentMethod,
@@ -167,7 +222,7 @@ const SubscriptionPlans = () => {
 
       toast({
         title: 'تم إرسال طلب الاشتراك!',
-        description: 'سيتم مراجعة الدفع وتفعيل اشتراكك قريباً',
+        description: isParent ? 'سيتم مراجعة الدفع وتفعيل اشتراك الطالب قريباً' : 'سيتم مراجعة الدفع وتفعيل اشتراكك قريباً',
       });
 
       setSelectedPlan(null);
@@ -199,8 +254,41 @@ const SubscriptionPlans = () => {
     <div className="space-y-6" dir="rtl">
       <div className="text-center">
         <h1 className="text-3xl font-bold">باقات الاشتراك</h1>
-        <p className="text-muted-foreground mt-1">اختر الباقة المناسبة لك</p>
+        <p className="text-muted-foreground mt-1">
+          {isParent ? 'اختر الطالب والباقة المناسبة' : 'اختر الباقة المناسبة لك'}
+        </p>
       </div>
+
+      {/* Parent: Student selector */}
+      {isParent && (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="space-y-2">
+              <Label className="text-base font-semibold">اختر الطالب</Label>
+              {linkedStudents.length === 0 ? (
+                <p className="text-sm text-muted-foreground">لا يوجد طلاب مرتبطين. اربط طالب أولاً من الداشبورد.</p>
+              ) : (
+                <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="اختر الطالب" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {linkedStudents.map((student) => (
+                      <SelectItem key={student.id} value={student.id}>
+                        <div className="flex items-center gap-2">
+                          <Users className="w-4 h-4" />
+                          <span>{student.full_name}</span>
+                          <span className="text-muted-foreground text-xs">({student.email})</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {plans.map((plan) => {
