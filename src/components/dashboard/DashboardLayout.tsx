@@ -81,6 +81,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         { title: 'Subscription', icon: Crown, url: '/dashboard/subscription' },
         { title: 'Schedule', icon: Calendar, url: '/dashboard/schedule' },
         { title: 'Progress', icon: BarChart3, url: '/dashboard/progress' },
+        { title: 'Leaderboard', icon: Trophy, url: '/dashboard/leaderboard' },
       ];
     }
 
@@ -89,6 +90,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         ...baseItems,
         { title: 'My Student', icon: Users, url: '/dashboard/student' },
         { title: 'Progress', icon: BarChart3, url: '/dashboard/progress' },
+        { title: 'Leaderboard', icon: Trophy, url: '/dashboard/leaderboard' },
       ];
     }
 
@@ -115,7 +117,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         { title: 'Python Lab', icon: Terminal, url: '/dashboard/labs/python' },
         { title: 'Roblox Lab', icon: Gamepad2, url: '/dashboard/labs/roblox' },
         { title: 'Minecraft Coding', icon: Blocks, url: '/dashboard/labs/minecraft' },
-        { title: 'Leaderboard', icon: Trophy, url: '/dashboard/leaderboard' },
       ];
     }
     return [];
