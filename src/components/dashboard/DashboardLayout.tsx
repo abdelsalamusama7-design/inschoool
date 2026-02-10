@@ -115,7 +115,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         { title: 'Python Lab', icon: Terminal, url: '/dashboard/labs/python' },
         { title: 'Roblox Lab', icon: Gamepad2, url: '/dashboard/labs/roblox' },
         { title: 'Minecraft Coding', icon: Blocks, url: '/dashboard/labs/minecraft' },
-        { title: 'Coding Gamification', icon: Gamepad2, url: '/dashboard/labs/gamification' },
         { title: 'Leaderboard', icon: Trophy, url: '/dashboard/leaderboard' },
       ];
     }
