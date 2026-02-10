@@ -36,8 +36,14 @@ interface Lesson {
   scratch_url: string | null;
   scratch_instructions: string | null;
   python_enabled: boolean;
+  python_url: string | null;
+  python_instructions: string | null;
   roblox_enabled: boolean;
+  roblox_url: string | null;
+  roblox_instructions: string | null;
   minecraft_enabled: boolean;
+  minecraft_url: string | null;
+  minecraft_instructions: string | null;
 }
 interface CourseMaterial {
   id: string;
@@ -79,8 +85,14 @@ const CourseDetail = () => {
   const [lessonScratchUrl, setLessonScratchUrl] = useState('');
   const [lessonScratchInstructions, setLessonScratchInstructions] = useState('');
   const [lessonPythonEnabled, setLessonPythonEnabled] = useState(false);
+  const [lessonPythonUrl, setLessonPythonUrl] = useState('');
+  const [lessonPythonInstructions, setLessonPythonInstructions] = useState('');
   const [lessonRobloxEnabled, setLessonRobloxEnabled] = useState(false);
+  const [lessonRobloxUrl, setLessonRobloxUrl] = useState('');
+  const [lessonRobloxInstructions, setLessonRobloxInstructions] = useState('');
   const [lessonMinecraftEnabled, setLessonMinecraftEnabled] = useState(false);
+  const [lessonMinecraftUrl, setLessonMinecraftUrl] = useState('');
+  const [lessonMinecraftInstructions, setLessonMinecraftInstructions] = useState('');
   const [savingLesson, setSavingLesson] = useState(false);
 
   // AI Generate lessons state
@@ -101,8 +113,14 @@ const CourseDetail = () => {
   const [editLessonScratchUrl, setEditLessonScratchUrl] = useState('');
   const [editLessonScratchInstructions, setEditLessonScratchInstructions] = useState('');
   const [editLessonPythonEnabled, setEditLessonPythonEnabled] = useState(false);
+  const [editLessonPythonUrl, setEditLessonPythonUrl] = useState('');
+  const [editLessonPythonInstructions, setEditLessonPythonInstructions] = useState('');
   const [editLessonRobloxEnabled, setEditLessonRobloxEnabled] = useState(false);
+  const [editLessonRobloxUrl, setEditLessonRobloxUrl] = useState('');
+  const [editLessonRobloxInstructions, setEditLessonRobloxInstructions] = useState('');
   const [editLessonMinecraftEnabled, setEditLessonMinecraftEnabled] = useState(false);
+  const [editLessonMinecraftUrl, setEditLessonMinecraftUrl] = useState('');
+  const [editLessonMinecraftInstructions, setEditLessonMinecraftInstructions] = useState('');
   const [savingEditLesson, setSavingEditLesson] = useState(false);
 
   // Scratch lab state
@@ -242,8 +260,14 @@ const CourseDetail = () => {
           scratch_url: lessonScratchEnabled ? (lessonScratchUrl || null) : null,
           scratch_instructions: lessonScratchEnabled ? (lessonScratchInstructions || null) : null,
           python_enabled: lessonPythonEnabled,
+          python_url: lessonPythonEnabled ? (lessonPythonUrl || null) : null,
+          python_instructions: lessonPythonEnabled ? (lessonPythonInstructions || null) : null,
           roblox_enabled: lessonRobloxEnabled,
+          roblox_url: lessonRobloxEnabled ? (lessonRobloxUrl || null) : null,
+          roblox_instructions: lessonRobloxEnabled ? (lessonRobloxInstructions || null) : null,
           minecraft_enabled: lessonMinecraftEnabled,
+          minecraft_url: lessonMinecraftEnabled ? (lessonMinecraftUrl || null) : null,
+          minecraft_instructions: lessonMinecraftEnabled ? (lessonMinecraftInstructions || null) : null,
         });
 
       if (error) throw error;
@@ -257,8 +281,14 @@ const CourseDetail = () => {
       setLessonScratchUrl('');
       setLessonScratchInstructions('');
       setLessonPythonEnabled(false);
+      setLessonPythonUrl('');
+      setLessonPythonInstructions('');
       setLessonRobloxEnabled(false);
+      setLessonRobloxUrl('');
+      setLessonRobloxInstructions('');
       setLessonMinecraftEnabled(false);
+      setLessonMinecraftUrl('');
+      setLessonMinecraftInstructions('');
       setDialogOpen(false);
       fetchCourse();
     } catch (error) {
@@ -298,8 +328,14 @@ const CourseDetail = () => {
     setEditLessonScratchUrl(lesson.scratch_url || '');
     setEditLessonScratchInstructions(lesson.scratch_instructions || '');
     setEditLessonPythonEnabled(lesson.python_enabled);
+    setEditLessonPythonUrl(lesson.python_url || '');
+    setEditLessonPythonInstructions(lesson.python_instructions || '');
     setEditLessonRobloxEnabled(lesson.roblox_enabled);
+    setEditLessonRobloxUrl(lesson.roblox_url || '');
+    setEditLessonRobloxInstructions(lesson.roblox_instructions || '');
     setEditLessonMinecraftEnabled(lesson.minecraft_enabled);
+    setEditLessonMinecraftUrl(lesson.minecraft_url || '');
+    setEditLessonMinecraftInstructions(lesson.minecraft_instructions || '');
     setEditLessonDialogOpen(true);
   };
 
@@ -318,8 +354,14 @@ const CourseDetail = () => {
           scratch_url: editLessonScratchEnabled ? (editLessonScratchUrl || null) : null,
           scratch_instructions: editLessonScratchEnabled ? (editLessonScratchInstructions || null) : null,
           python_enabled: editLessonPythonEnabled,
+          python_url: editLessonPythonEnabled ? (editLessonPythonUrl || null) : null,
+          python_instructions: editLessonPythonEnabled ? (editLessonPythonInstructions || null) : null,
           roblox_enabled: editLessonRobloxEnabled,
+          roblox_url: editLessonRobloxEnabled ? (editLessonRobloxUrl || null) : null,
+          roblox_instructions: editLessonRobloxEnabled ? (editLessonRobloxInstructions || null) : null,
           minecraft_enabled: editLessonMinecraftEnabled,
+          minecraft_url: editLessonMinecraftEnabled ? (editLessonMinecraftUrl || null) : null,
+          minecraft_instructions: editLessonMinecraftEnabled ? (editLessonMinecraftInstructions || null) : null,
         })
         .eq('id', editingLesson.id);
 
@@ -669,6 +711,42 @@ const CourseDetail = () => {
                         <div className="space-y-2">
                           <Label>تعليمات النشاط</Label>
                           <Textarea placeholder="تعليمات للطلاب..." value={lessonScratchInstructions} onChange={(e) => setLessonScratchInstructions(e.target.value)} rows={3} />
+                        </div>
+                      </div>
+                    )}
+                    {lessonPythonEnabled && (
+                      <div className="space-y-3 pt-2 border-t">
+                        <div className="space-y-2">
+                          <Label>رابط مشروع Python</Label>
+                          <Input placeholder="رابط المشروع أو المحرر..." value={lessonPythonUrl} onChange={(e) => setLessonPythonUrl(e.target.value)} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>تعليمات Python</Label>
+                          <Textarea placeholder="تعليمات للطلاب..." value={lessonPythonInstructions} onChange={(e) => setLessonPythonInstructions(e.target.value)} rows={3} />
+                        </div>
+                      </div>
+                    )}
+                    {lessonRobloxEnabled && (
+                      <div className="space-y-3 pt-2 border-t">
+                        <div className="space-y-2">
+                          <Label>رابط مشروع Roblox</Label>
+                          <Input placeholder="رابط المشروع..." value={lessonRobloxUrl} onChange={(e) => setLessonRobloxUrl(e.target.value)} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>تعليمات Roblox</Label>
+                          <Textarea placeholder="تعليمات للطلاب..." value={lessonRobloxInstructions} onChange={(e) => setLessonRobloxInstructions(e.target.value)} rows={3} />
+                        </div>
+                      </div>
+                    )}
+                    {lessonMinecraftEnabled && (
+                      <div className="space-y-3 pt-2 border-t">
+                        <div className="space-y-2">
+                          <Label>رابط مشروع Minecraft</Label>
+                          <Input placeholder="رابط المشروع..." value={lessonMinecraftUrl} onChange={(e) => setLessonMinecraftUrl(e.target.value)} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>تعليمات Minecraft</Label>
+                          <Textarea placeholder="تعليمات للطلاب..." value={lessonMinecraftInstructions} onChange={(e) => setLessonMinecraftInstructions(e.target.value)} rows={3} />
                         </div>
                       </div>
                     )}
@@ -1153,6 +1231,42 @@ const CourseDetail = () => {
                   <div className="space-y-2">
                     <Label>تعليمات النشاط</Label>
                     <Textarea value={editLessonScratchInstructions} onChange={(e) => setEditLessonScratchInstructions(e.target.value)} rows={3} />
+                  </div>
+                </div>
+              )}
+              {editLessonPythonEnabled && (
+                <div className="space-y-3 pt-2 border-t">
+                  <div className="space-y-2">
+                    <Label>رابط مشروع Python</Label>
+                    <Input value={editLessonPythonUrl} onChange={(e) => setEditLessonPythonUrl(e.target.value)} placeholder="رابط المشروع أو المحرر..." />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>تعليمات Python</Label>
+                    <Textarea value={editLessonPythonInstructions} onChange={(e) => setEditLessonPythonInstructions(e.target.value)} rows={3} />
+                  </div>
+                </div>
+              )}
+              {editLessonRobloxEnabled && (
+                <div className="space-y-3 pt-2 border-t">
+                  <div className="space-y-2">
+                    <Label>رابط مشروع Roblox</Label>
+                    <Input value={editLessonRobloxUrl} onChange={(e) => setEditLessonRobloxUrl(e.target.value)} placeholder="رابط المشروع..." />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>تعليمات Roblox</Label>
+                    <Textarea value={editLessonRobloxInstructions} onChange={(e) => setEditLessonRobloxInstructions(e.target.value)} rows={3} />
+                  </div>
+                </div>
+              )}
+              {editLessonMinecraftEnabled && (
+                <div className="space-y-3 pt-2 border-t">
+                  <div className="space-y-2">
+                    <Label>رابط مشروع Minecraft</Label>
+                    <Input value={editLessonMinecraftUrl} onChange={(e) => setEditLessonMinecraftUrl(e.target.value)} placeholder="رابط المشروع..." />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>تعليمات Minecraft</Label>
+                    <Textarea value={editLessonMinecraftInstructions} onChange={(e) => setEditLessonMinecraftInstructions(e.target.value)} rows={3} />
                   </div>
                 </div>
               )}
