@@ -248,7 +248,7 @@ const ScratchLabPage = () => {
       </div>
 
       {/* Tutorial Videos */}
-      <TutorialVideos videos={scratchVideos} accentColor="text-orange-500" />
+      <TutorialVideos videos={scratchVideos} accentColor="text-orange-500" labType="scratch" />
     </div>
   );
 };

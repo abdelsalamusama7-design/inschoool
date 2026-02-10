@@ -103,6 +103,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         { title: 'Generate Lessons', icon: Sparkles, url: '/dashboard/curriculum-generator' },
         { title: 'Lessons', icon: List, url: '/dashboard/lessons' },
         { title: 'Live Sessions', icon: Video, url: '/dashboard/live-sessions' },
+        { title: 'Tutorial Videos', icon: Video, url: '/dashboard/tutorial-videos' },
         { title: 'Students', icon: Users, url: '/dashboard/students' },
         { title: 'Subscriptions', icon: CreditCard, url: '/dashboard/admin/subscriptions' },
         { title: 'Schedule', icon: Calendar, url: '/dashboard/schedule' },

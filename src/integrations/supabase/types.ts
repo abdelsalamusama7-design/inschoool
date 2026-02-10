@@ -609,6 +609,39 @@ export type Database = {
           },
         ]
       }
+      tutorial_videos: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          lab_type: string
+          order_index: number | null
+          title: string
+          video_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          lab_type: string
+          order_index?: number | null
+          title: string
+          video_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          lab_type?: string
+          order_index?: number | null
+          title?: string
+          video_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

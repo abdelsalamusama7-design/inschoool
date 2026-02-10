@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Video } from 'lucide-react';
 
@@ -10,10 +12,34 @@ interface TutorialVideo {
 interface TutorialVideosProps {
   videos: TutorialVideo[];
   accentColor?: string;
+  labType?: string;
 }
 
-const TutorialVideos = ({ videos, accentColor = 'text-primary' }: TutorialVideosProps) => {
-  if (videos.length === 0) return null;
+const TutorialVideos = ({ videos: staticVideos, accentColor = 'text-primary', labType }: TutorialVideosProps) => {
+  const [dynamicVideos, setDynamicVideos] = useState<TutorialVideo[]>([]);
+
+  useEffect(() => {
+    if (labType) {
+      supabase
+        .from('tutorial_videos')
+        .select('video_id, title, description')
+        .eq('lab_type', labType)
+        .order('order_index', { ascending: true })
+        .then(({ data }) => {
+          if (data) {
+            setDynamicVideos(data.map((v: any) => ({
+              videoId: v.video_id,
+              title: v.title,
+              description: v.description || undefined,
+            })));
+          }
+        });
+    }
+  }, [labType]);
+
+  const allVideos = [...staticVideos, ...dynamicVideos];
+
+  if (allVideos.length === 0) return null;
 
   return (
     <div className="space-y-3">
@@ -22,7 +48,7 @@ const TutorialVideos = ({ videos, accentColor = 'text-primary' }: TutorialVideos
         Tutorial Videos
       </h3>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {videos.map((video, i) => (
+        {allVideos.map((video, i) => (
           <Card key={i} className="overflow-hidden hover:shadow-md transition-shadow">
             <div className="aspect-video">
               <iframe

@@ -21,6 +21,7 @@ import LabPage from "./pages/LabPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import LessonsManagementPage from "./pages/LessonsManagementPage";
 import LiveSessionsPage from "./pages/LiveSessionsPage";
+import TutorialVideosPage from "./pages/TutorialVideosPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -120,6 +121,14 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={['instructor']}>
                   <LiveSessionsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/tutorial-videos"
+              element={
+                <ProtectedRoute allowedRoles={['instructor']}>
+                  <TutorialVideosPage />
                 </ProtectedRoute>
               }
             />
