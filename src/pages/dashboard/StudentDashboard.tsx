@@ -8,6 +8,7 @@ import { BookOpen, CheckCircle, Clock, GraduationCap } from 'lucide-react';
 import SubscriptionStatus from '@/components/dashboard/SubscriptionStatus';
 import WeeklyScheduleView from '@/components/dashboard/WeeklyScheduleView';
 import CodingLabsSection from '@/components/dashboard/CodingLabsSection';
+import GamificationPanel from '@/components/dashboard/GamificationPanel';
 
 interface Course {
   id: string;
@@ -146,8 +147,11 @@ const StudentDashboard = () => {
         </Card>
       </div>
 
-      {/* Coding Labs */}
-      <CodingLabsSection />
+      {/* Coding Labs + Gamification */}
+      <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
+        <CodingLabsSection />
+        <GamificationPanel />
+      </div>
 
       {/* Enrolled Courses */}
       <Card>

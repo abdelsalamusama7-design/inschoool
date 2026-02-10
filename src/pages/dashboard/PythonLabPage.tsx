@@ -16,16 +16,19 @@ import {
 } from 'lucide-react';
 import { usePyodide } from '@/hooks/usePyodide';
 import { pythonChallenges, PythonChallenge } from '@/data/pythonChallenges';
+import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 
 const DEFAULT_CODE = '# Welcome to Python Lab! 🐍\n# Write your code here and click Run\n\nprint("Hello from Python Lab!")\n';
 
 const PythonLabPage = () => {
   const { loading: pyLoading, ready, error: pyError, runCode } = usePyodide();
+  const { totalPoints, awardPoints } = useGamification();
   const [code, setCode] = useState(DEFAULT_CODE);
   const [output, setOutput] = useState('');
   const [running, setRunning] = useState(false);
   const [activeChallenge, setActiveChallenge] = useState<PythonChallenge | null>(null);
   const [showHint, setShowHint] = useState(false);
+  const [completedChallenges, setCompletedChallenges] = useState<Set<string>>(new Set());
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Handle tab key in textarea
@@ -59,6 +62,16 @@ const PythonLabPage = () => {
 
     setOutput(finalOutput.trim());
     setRunning(false);
+
+    // Award points
+    if (!result.error) {
+      if (activeChallenge && !completedChallenges.has(activeChallenge.id)) {
+        setCompletedChallenges((prev) => new Set(prev).add(activeChallenge.id));
+        await awardPoints(POINTS_CONFIG.python_challenge, `Completed: ${activeChallenge.title}`, 'python');
+      } else {
+        await awardPoints(POINTS_CONFIG.python_run, 'Ran Python code', 'python');
+      }
+    }
   };
 
   const handleClear = () => {
@@ -97,7 +110,10 @@ const PythonLabPage = () => {
             Write and run Python code directly in your browser!
           </p>
         </div>
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-2">
+          <Badge variant="outline" className="gap-1 text-amber-600 border-amber-300">
+            ⭐ {totalPoints} pts
+          </Badge>
           {pyLoading && (
             <Badge variant="outline" className="gap-1">
               <Loader2 className="h-3 w-3 animate-spin" />

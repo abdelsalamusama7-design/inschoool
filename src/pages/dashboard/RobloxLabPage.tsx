@@ -1,6 +1,8 @@
+import { useEffect, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ExternalLink, Gamepad2, Lightbulb, Star, Zap, Target, Rocket, Video, BookOpen } from 'lucide-react';
+import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 
 const ROBLOX_STUDIO_URL = 'https://www.roblox.com/create';
 const ROBLOX_LEARN_URL = 'https://create.roblox.com/docs';
@@ -15,6 +17,16 @@ const tips = [
 ];
 
 const RobloxLabPage = () => {
+  const { awardPoints } = useGamification();
+  const awarded = useRef(false);
+
+  useEffect(() => {
+    if (!awarded.current) {
+      awarded.current = true;
+      awardPoints(POINTS_CONFIG.roblox_visit, 'Visited Roblox Lab', 'roblox');
+    }
+  }, []);
+
   const openRobloxStudio = () => {
     window.open(ROBLOX_STUDIO_URL, '_blank', 'noopener,noreferrer');
   };
