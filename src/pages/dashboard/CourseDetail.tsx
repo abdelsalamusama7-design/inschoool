@@ -83,6 +83,19 @@ const CourseDetail = () => {
   const [generateCount, setGenerateCount] = useState('5');
   const [generating, setGenerating] = useState(false);
   const [generatedLessons, setGeneratedLessons] = useState<{ title: string; description: string; content: string }[]>([]);
+
+  // Edit lesson state
+  const [editLessonDialogOpen, setEditLessonDialogOpen] = useState(false);
+  const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
+  const [editLessonTitle, setEditLessonTitle] = useState('');
+  const [editLessonDescription, setEditLessonDescription] = useState('');
+  const [editLessonContent, setEditLessonContent] = useState('');
+  const [editLessonVideoUrl, setEditLessonVideoUrl] = useState('');
+  const [editLessonScratchEnabled, setEditLessonScratchEnabled] = useState(false);
+  const [editLessonScratchUrl, setEditLessonScratchUrl] = useState('');
+  const [editLessonScratchInstructions, setEditLessonScratchInstructions] = useState('');
+  const [savingEditLesson, setSavingEditLesson] = useState(false);
+
   // Scratch lab state
   const [activeScratchLesson, setActiveScratchLesson] = useState<Lesson | null>(null);
   const [scratchCompletions, setScratchCompletions] = useState<Map<string, { count: number; students: { name: string; notes: string | null; completed_at: string }[] }>>(new Map());
@@ -257,6 +270,59 @@ const CourseDetail = () => {
     } catch (error) {
       console.error('Error deleting lesson:', error);
       toast.error('Failed to delete lesson');
+    }
+  };
+
+  const openEditLessonDialog = (lesson: Lesson) => {
+    setEditingLesson(lesson);
+    setEditLessonTitle(lesson.title);
+    setEditLessonDescription(lesson.description || '');
+    setEditLessonContent(lesson.content || '');
+    setEditLessonVideoUrl(lesson.video_url || '');
+    setEditLessonScratchEnabled(lesson.scratch_enabled);
+    setEditLessonScratchUrl(lesson.scratch_url || '');
+    setEditLessonScratchInstructions(lesson.scratch_instructions || '');
+    setEditLessonDialogOpen(true);
+  };
+
+  const handleSaveEditLesson = async () => {
+    if (!editingLesson || !editLessonTitle.trim()) return;
+    setSavingEditLesson(true);
+    try {
+      const { error } = await supabase
+        .from('lessons')
+        .update({
+          title: editLessonTitle,
+          description: editLessonDescription || null,
+          content: editLessonContent || null,
+          video_url: editLessonVideoUrl || null,
+          scratch_enabled: editLessonScratchEnabled,
+          scratch_url: editLessonScratchEnabled ? (editLessonScratchUrl || null) : null,
+          scratch_instructions: editLessonScratchEnabled ? (editLessonScratchInstructions || null) : null,
+        })
+        .eq('id', editingLesson.id);
+
+      if (error) throw error;
+      toast.success('تم تحديث الدرس بنجاح!');
+      setEditLessonDialogOpen(false);
+      fetchCourse();
+    } catch (error: any) {
+      toast.error('فشل في تحديث الدرس');
+    } finally {
+      setSavingEditLesson(false);
+    }
+  };
+
+  const handleDeleteCourse = async () => {
+    if (!course) return;
+    if (!confirm('هل أنت متأكد من حذف هذا الكورس وجميع دروسه؟')) return;
+    try {
+      const { error } = await supabase.from('courses').delete().eq('id', course.id);
+      if (error) throw error;
+      toast.success('تم حذف الكورس');
+      navigate('/dashboard/courses');
+    } catch (error: any) {
+      toast.error('فشل في حذف الكورس');
     }
   };
 
@@ -492,7 +558,11 @@ const CourseDetail = () => {
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={openEditDialog}>
               <Pencil className="w-4 h-4 mr-2" />
-              Edit Course
+              تعديل الكورس
+            </Button>
+            <Button variant="destructive" size="sm" onClick={handleDeleteCourse}>
+              <Trash2 className="w-4 h-4 mr-2" />
+              حذف الكورس
             </Button>
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
@@ -796,14 +866,23 @@ const CourseDetail = () => {
                         </Button>
                       )}
                       {isInstructor && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-destructive hover:text-destructive"
-                          onClick={() => handleDeleteLesson(lesson.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        <>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => openEditLessonDialog(lesson)}
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() => handleDeleteLesson(lesson.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </>
                       )}
                     </div>
                   </div>
@@ -979,6 +1058,60 @@ const CourseDetail = () => {
               ) : (
                 'Save Changes'
               )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Lesson Dialog */}
+      <Dialog open={editLessonDialogOpen} onOpenChange={setEditLessonDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>تعديل الدرس</DialogTitle>
+            <DialogDescription>قم بتعديل تفاصيل الدرس</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>العنوان *</Label>
+              <Input value={editLessonTitle} onChange={(e) => setEditLessonTitle(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label>الوصف</Label>
+              <Input value={editLessonDescription} onChange={(e) => setEditLessonDescription(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label>المحتوى</Label>
+              <Textarea value={editLessonContent} onChange={(e) => setEditLessonContent(e.target.value)} rows={5} />
+            </div>
+            <div className="space-y-2">
+              <Label>رابط الفيديو</Label>
+              <Input value={editLessonVideoUrl} onChange={(e) => setEditLessonVideoUrl(e.target.value)} placeholder="https://youtube.com/..." />
+            </div>
+            <div className="border rounded-lg p-4 space-y-3 bg-muted/30">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Code2 className="h-4 w-4 text-primary" />
+                  <Label className="font-medium">تفعيل Scratch</Label>
+                </div>
+                <Switch checked={editLessonScratchEnabled} onCheckedChange={setEditLessonScratchEnabled} />
+              </div>
+              {editLessonScratchEnabled && (
+                <div className="space-y-3 pt-2">
+                  <div className="space-y-2">
+                    <Label>رابط مشروع Scratch</Label>
+                    <Input value={editLessonScratchUrl} onChange={(e) => setEditLessonScratchUrl(e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>تعليمات النشاط</Label>
+                    <Textarea value={editLessonScratchInstructions} onChange={(e) => setEditLessonScratchInstructions(e.target.value)} rows={3} />
+                  </div>
+                </div>
+              )}
+            </div>
+            <Button onClick={handleSaveEditLesson} disabled={savingEditLesson || !editLessonTitle.trim()} className="w-full">
+              {savingEditLesson ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" />جاري الحفظ...</>
+              ) : 'حفظ التعديلات'}
             </Button>
           </div>
         </DialogContent>
