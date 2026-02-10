@@ -10,11 +10,12 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { ArrowLeft, Plus, FileText, Trash2, Lock, Crown, Upload, Download, Loader2, Pencil, Image, Code2, Users, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Plus, FileText, Trash2, Lock, Crown, Upload, Download, Loader2, Pencil, Image, Code2, Users, CheckCircle, Sparkles } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
+
 
 interface Course {
   id: string;
@@ -76,6 +77,12 @@ const CourseDetail = () => {
   const [lessonScratchInstructions, setLessonScratchInstructions] = useState('');
   const [savingLesson, setSavingLesson] = useState(false);
 
+  // AI Generate lessons state
+  const [generateDialogOpen, setGenerateDialogOpen] = useState(false);
+  const [generateTopic, setGenerateTopic] = useState('');
+  const [generateCount, setGenerateCount] = useState('5');
+  const [generating, setGenerating] = useState(false);
+  const [generatedLessons, setGeneratedLessons] = useState<{ title: string; description: string; content: string }[]>([]);
   // Scratch lab state
   const [activeScratchLesson, setActiveScratchLesson] = useState<Lesson | null>(null);
   const [scratchCompletions, setScratchCompletions] = useState<Map<string, { count: number; students: { name: string; notes: string | null; completed_at: string }[] }>>(new Map());
@@ -298,6 +305,64 @@ const CourseDetail = () => {
       fetchCourse();
     } catch (error: any) {
       toast.error('Failed to delete material');
+    }
+  };
+
+  const handleGenerateLessons = async () => {
+    if (!course) return;
+    setGenerating(true);
+    setGeneratedLessons([]);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-lessons', {
+        body: {
+          courseTitle: course.title,
+          courseDescription: course.description,
+          ageGroup: course.age_group,
+          topic: generateTopic,
+          lessonsCount: parseInt(generateCount) || 5,
+        },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      setGeneratedLessons(data.lessons || []);
+      toast.success(`تم توليد ${data.lessons?.length || 0} دروس بنجاح!`);
+    } catch (error: any) {
+      console.error('Error generating lessons:', error);
+      toast.error(error.message || 'فشل في توليد الدروس');
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleSaveGeneratedLessons = async () => {
+    if (!id || generatedLessons.length === 0) return;
+    setSavingLesson(true);
+    try {
+      const startIndex = lessons.length;
+      const inserts = generatedLessons.map((lesson, i) => ({
+        course_id: id,
+        title: lesson.title,
+        description: lesson.description || null,
+        content: lesson.content || null,
+        video_url: null,
+        order_index: startIndex + i,
+        scratch_enabled: false,
+      }));
+
+      const { error } = await supabase.from('lessons').insert(inserts);
+      if (error) throw error;
+
+      toast.success(`تم حفظ ${generatedLessons.length} دروس!`);
+      setGeneratedLessons([]);
+      setGenerateDialogOpen(false);
+      setGenerateTopic('');
+      fetchCourse();
+    } catch (error: any) {
+      toast.error('فشل في حفظ الدروس');
+    } finally {
+      setSavingLesson(false);
     }
   };
 
@@ -525,9 +590,104 @@ const CourseDetail = () => {
                 </div>
               </DialogContent>
             </Dialog>
+            <Button variant="outline" onClick={() => setGenerateDialogOpen(true)}>
+              <Sparkles className="w-4 h-4 mr-2" />
+              توليد بالذكاء الاصطناعي
+            </Button>
           </div>
         )}
       </div>
+
+      {/* AI Generate Lessons Dialog */}
+      <Dialog open={generateDialogOpen} onOpenChange={(open) => {
+        setGenerateDialogOpen(open);
+        if (!open) { setGeneratedLessons([]); setGenerateTopic(''); }
+      }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-primary" />
+              توليد الدروس بالذكاء الاصطناعي
+            </DialogTitle>
+            <DialogDescription>
+              سيتم توليد دروس تلقائياً بناءً على عنوان الكورس والفئة العمرية
+            </DialogDescription>
+          </DialogHeader>
+
+          {generatedLessons.length === 0 ? (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>موضوع محدد (اختياري)</Label>
+                <Input
+                  placeholder="مثال: الحلقات والتكرار في البرمجة..."
+                  value={generateTopic}
+                  onChange={(e) => setGenerateTopic(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>عدد الدروس</Label>
+                <Select value={generateCount} onValueChange={setGenerateCount}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[3, 5, 7, 10].map(n => (
+                      <SelectItem key={n} value={String(n)}>{n} دروس</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="p-3 rounded-lg bg-muted/50 text-sm text-muted-foreground">
+                <p><strong>الكورس:</strong> {course?.title}</p>
+                <p><strong>الفئة العمرية:</strong> {course?.age_group} سنوات</p>
+              </div>
+              <Button onClick={handleGenerateLessons} disabled={generating} className="w-full">
+                {generating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    جاري التوليد...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    توليد الدروس
+                  </>
+                )}
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">تم توليد {generatedLessons.length} دروس. راجعها ثم اضغط حفظ.</p>
+              <div className="space-y-3 max-h-[50vh] overflow-y-auto">
+                {generatedLessons.map((lesson, i) => (
+                  <div key={i} className="p-3 rounded-lg border bg-muted/30">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="w-6 h-6 rounded-full bg-primary/10 text-primary text-xs flex items-center justify-center font-bold">{i + 1}</span>
+                      <h4 className="font-medium text-sm">{lesson.title}</h4>
+                    </div>
+                    <p className="text-xs text-muted-foreground">{lesson.description}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" className="flex-1" onClick={() => setGeneratedLessons([])}>
+                  إعادة التوليد
+                </Button>
+                <Button className="flex-1" onClick={handleSaveGeneratedLessons} disabled={savingLesson}>
+                  {savingLesson ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      جاري الحفظ...
+                    </>
+                  ) : (
+                    `حفظ ${generatedLessons.length} دروس`
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <Card>
         <CardHeader>
