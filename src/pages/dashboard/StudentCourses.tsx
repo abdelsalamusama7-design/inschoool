@@ -377,7 +377,7 @@ const StudentCourses = () => {
                 )}
 
                 {/* Scratch Lab */}
-                {openLesson.scratch_enabled && openLesson.scratch_url && (
+                {openLesson.scratch_enabled && (
                   <div className="space-y-2">
                     <h3 className="font-semibold flex items-center gap-2">
                       <Code2 className="w-4 h-4 text-primary" /> معمل Scratch
