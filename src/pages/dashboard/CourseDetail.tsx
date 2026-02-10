@@ -35,6 +35,9 @@ interface Lesson {
   scratch_enabled: boolean;
   scratch_url: string | null;
   scratch_instructions: string | null;
+  python_enabled: boolean;
+  roblox_enabled: boolean;
+  minecraft_enabled: boolean;
 }
 interface CourseMaterial {
   id: string;
@@ -75,6 +78,9 @@ const CourseDetail = () => {
   const [lessonScratchEnabled, setLessonScratchEnabled] = useState(false);
   const [lessonScratchUrl, setLessonScratchUrl] = useState('');
   const [lessonScratchInstructions, setLessonScratchInstructions] = useState('');
+  const [lessonPythonEnabled, setLessonPythonEnabled] = useState(false);
+  const [lessonRobloxEnabled, setLessonRobloxEnabled] = useState(false);
+  const [lessonMinecraftEnabled, setLessonMinecraftEnabled] = useState(false);
   const [savingLesson, setSavingLesson] = useState(false);
 
   // AI Generate lessons state
@@ -94,6 +100,9 @@ const CourseDetail = () => {
   const [editLessonScratchEnabled, setEditLessonScratchEnabled] = useState(false);
   const [editLessonScratchUrl, setEditLessonScratchUrl] = useState('');
   const [editLessonScratchInstructions, setEditLessonScratchInstructions] = useState('');
+  const [editLessonPythonEnabled, setEditLessonPythonEnabled] = useState(false);
+  const [editLessonRobloxEnabled, setEditLessonRobloxEnabled] = useState(false);
+  const [editLessonMinecraftEnabled, setEditLessonMinecraftEnabled] = useState(false);
   const [savingEditLesson, setSavingEditLesson] = useState(false);
 
   // Scratch lab state
@@ -232,6 +241,9 @@ const CourseDetail = () => {
           scratch_enabled: lessonScratchEnabled,
           scratch_url: lessonScratchEnabled ? (lessonScratchUrl || null) : null,
           scratch_instructions: lessonScratchEnabled ? (lessonScratchInstructions || null) : null,
+          python_enabled: lessonPythonEnabled,
+          roblox_enabled: lessonRobloxEnabled,
+          minecraft_enabled: lessonMinecraftEnabled,
         });
 
       if (error) throw error;
@@ -244,6 +256,9 @@ const CourseDetail = () => {
       setLessonScratchEnabled(false);
       setLessonScratchUrl('');
       setLessonScratchInstructions('');
+      setLessonPythonEnabled(false);
+      setLessonRobloxEnabled(false);
+      setLessonMinecraftEnabled(false);
       setDialogOpen(false);
       fetchCourse();
     } catch (error) {
@@ -282,6 +297,9 @@ const CourseDetail = () => {
     setEditLessonScratchEnabled(lesson.scratch_enabled);
     setEditLessonScratchUrl(lesson.scratch_url || '');
     setEditLessonScratchInstructions(lesson.scratch_instructions || '');
+    setEditLessonPythonEnabled(lesson.python_enabled);
+    setEditLessonRobloxEnabled(lesson.roblox_enabled);
+    setEditLessonMinecraftEnabled(lesson.minecraft_enabled);
     setEditLessonDialogOpen(true);
   };
 
@@ -299,6 +317,9 @@ const CourseDetail = () => {
           scratch_enabled: editLessonScratchEnabled,
           scratch_url: editLessonScratchEnabled ? (editLessonScratchUrl || null) : null,
           scratch_instructions: editLessonScratchEnabled ? (editLessonScratchInstructions || null) : null,
+          python_enabled: editLessonPythonEnabled,
+          roblox_enabled: editLessonRobloxEnabled,
+          minecraft_enabled: editLessonMinecraftEnabled,
         })
         .eq('id', editingLesson.id);
 
@@ -615,40 +636,39 @@ const CourseDetail = () => {
                     />
                   </div>
 
-                  {/* Scratch Workspace Settings */}
+                  {/* Lab Selection */}
                   <div className="border rounded-lg p-4 space-y-3 bg-muted/30">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Code2 className="h-4 w-4 text-primary" />
-                        <Label htmlFor="scratch-toggle" className="font-medium">Enable Scratch Workspace</Label>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Code2 className="h-4 w-4 text-primary" />
+                      <Label className="font-medium">تفعيل المعامل البرمجية</Label>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="flex items-center justify-between p-2 rounded-md border bg-background">
+                        <Label htmlFor="scratch-toggle" className="text-sm cursor-pointer">Scratch</Label>
+                        <Switch id="scratch-toggle" checked={lessonScratchEnabled} onCheckedChange={setLessonScratchEnabled} />
                       </div>
-                      <Switch
-                        id="scratch-toggle"
-                        checked={lessonScratchEnabled}
-                        onCheckedChange={setLessonScratchEnabled}
-                      />
+                      <div className="flex items-center justify-between p-2 rounded-md border bg-background">
+                        <Label htmlFor="python-toggle" className="text-sm cursor-pointer">Python</Label>
+                        <Switch id="python-toggle" checked={lessonPythonEnabled} onCheckedChange={setLessonPythonEnabled} />
+                      </div>
+                      <div className="flex items-center justify-between p-2 rounded-md border bg-background">
+                        <Label htmlFor="roblox-toggle" className="text-sm cursor-pointer">Roblox</Label>
+                        <Switch id="roblox-toggle" checked={lessonRobloxEnabled} onCheckedChange={setLessonRobloxEnabled} />
+                      </div>
+                      <div className="flex items-center justify-between p-2 rounded-md border bg-background">
+                        <Label htmlFor="minecraft-toggle" className="text-sm cursor-pointer">Minecraft</Label>
+                        <Switch id="minecraft-toggle" checked={lessonMinecraftEnabled} onCheckedChange={setLessonMinecraftEnabled} />
+                      </div>
                     </div>
                     {lessonScratchEnabled && (
-                      <div className="space-y-3 pt-2">
+                      <div className="space-y-3 pt-2 border-t">
                         <div className="space-y-2">
-                          <Label htmlFor="scratch-url">Scratch Project URL</Label>
-                          <Input
-                            id="scratch-url"
-                            placeholder="https://scratch.mit.edu/projects/..."
-                            value={lessonScratchUrl}
-                            onChange={(e) => setLessonScratchUrl(e.target.value)}
-                          />
-                          <p className="text-xs text-muted-foreground">Paste a Scratch project or studio link</p>
+                          <Label>رابط مشروع Scratch</Label>
+                          <Input placeholder="https://scratch.mit.edu/projects/..." value={lessonScratchUrl} onChange={(e) => setLessonScratchUrl(e.target.value)} />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="scratch-instructions">Activity Instructions</Label>
-                          <Textarea
-                            id="scratch-instructions"
-                            placeholder="Write instructions for students..."
-                            value={lessonScratchInstructions}
-                            onChange={(e) => setLessonScratchInstructions(e.target.value)}
-                            rows={3}
-                          />
+                          <Label>تعليمات النشاط</Label>
+                          <Textarea placeholder="تعليمات للطلاب..." value={lessonScratchInstructions} onChange={(e) => setLessonScratchInstructions(e.target.value)} rows={3} />
                         </div>
                       </div>
                     )}
@@ -807,11 +827,25 @@ const CourseDetail = () => {
                         <div className="flex items-center gap-2">
                           <h4 className="font-medium">{lesson.title}</h4>
                           {lesson.scratch_enabled && (
-                            <Badge variant="outline" className="text-xs gap-1">
-                              <Code2 className="w-3 h-3" />
-                              Scratch
-                            </Badge>
-                          )}
+                             <Badge variant="outline" className="text-xs gap-1">
+                               <Code2 className="w-3 h-3" /> Scratch
+                             </Badge>
+                           )}
+                           {lesson.python_enabled && (
+                             <Badge variant="outline" className="text-xs gap-1">
+                               <Code2 className="w-3 h-3" /> Python
+                             </Badge>
+                           )}
+                           {lesson.roblox_enabled && (
+                             <Badge variant="outline" className="text-xs gap-1">
+                               <Code2 className="w-3 h-3" /> Roblox
+                             </Badge>
+                           )}
+                           {lesson.minecraft_enabled && (
+                             <Badge variant="outline" className="text-xs gap-1">
+                               <Code2 className="w-3 h-3" /> Minecraft
+                             </Badge>
+                           )}
                           {isInstructor && lesson.scratch_enabled && scratchCompletions.has(lesson.id) && (
                             <Popover>
                               <PopoverTrigger asChild>
@@ -1088,15 +1122,30 @@ const CourseDetail = () => {
               <Input value={editLessonVideoUrl} onChange={(e) => setEditLessonVideoUrl(e.target.value)} placeholder="https://youtube.com/..." />
             </div>
             <div className="border rounded-lg p-4 space-y-3 bg-muted/30">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Code2 className="h-4 w-4 text-primary" />
-                  <Label className="font-medium">تفعيل Scratch</Label>
+              <div className="flex items-center gap-2 mb-2">
+                <Code2 className="h-4 w-4 text-primary" />
+                <Label className="font-medium">تفعيل المعامل البرمجية</Label>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex items-center justify-between p-2 rounded-md border bg-background">
+                  <Label className="text-sm cursor-pointer">Scratch</Label>
+                  <Switch checked={editLessonScratchEnabled} onCheckedChange={setEditLessonScratchEnabled} />
                 </div>
-                <Switch checked={editLessonScratchEnabled} onCheckedChange={setEditLessonScratchEnabled} />
+                <div className="flex items-center justify-between p-2 rounded-md border bg-background">
+                  <Label className="text-sm cursor-pointer">Python</Label>
+                  <Switch checked={editLessonPythonEnabled} onCheckedChange={setEditLessonPythonEnabled} />
+                </div>
+                <div className="flex items-center justify-between p-2 rounded-md border bg-background">
+                  <Label className="text-sm cursor-pointer">Roblox</Label>
+                  <Switch checked={editLessonRobloxEnabled} onCheckedChange={setEditLessonRobloxEnabled} />
+                </div>
+                <div className="flex items-center justify-between p-2 rounded-md border bg-background">
+                  <Label className="text-sm cursor-pointer">Minecraft</Label>
+                  <Switch checked={editLessonMinecraftEnabled} onCheckedChange={setEditLessonMinecraftEnabled} />
+                </div>
               </div>
               {editLessonScratchEnabled && (
-                <div className="space-y-3 pt-2">
+                <div className="space-y-3 pt-2 border-t">
                   <div className="space-y-2">
                     <Label>رابط مشروع Scratch</Label>
                     <Input value={editLessonScratchUrl} onChange={(e) => setEditLessonScratchUrl(e.target.value)} />

@@ -28,6 +28,9 @@ interface Lesson {
   scratch_enabled: boolean;
   scratch_url: string | null;
   scratch_instructions: string | null;
+  python_enabled: boolean;
+  roblox_enabled: boolean;
+  minecraft_enabled: boolean;
 }
 
 const StudentCourses = () => {
@@ -269,6 +272,21 @@ const StudentCourses = () => {
                                         <Code2 className="w-3 h-3" /> Scratch
                                       </Badge>
                                     )}
+                                    {lesson.python_enabled && (
+                                      <Badge variant="outline" className="text-xs gap-1">
+                                        <Code2 className="w-3 h-3" /> Python
+                                      </Badge>
+                                    )}
+                                    {lesson.roblox_enabled && (
+                                      <Badge variant="outline" className="text-xs gap-1">
+                                        <Code2 className="w-3 h-3" /> Roblox
+                                      </Badge>
+                                    )}
+                                    {lesson.minecraft_enabled && (
+                                      <Badge variant="outline" className="text-xs gap-1">
+                                        <Code2 className="w-3 h-3" /> Minecraft
+                                      </Badge>
+                                    )}
                                   </div>
                                 </div>
                               </div>
@@ -400,8 +418,59 @@ const StudentCourses = () => {
                   </div>
                 )}
 
+                {/* Python Lab */}
+                {openLesson.python_enabled && (
+                  <div className="space-y-2">
+                    <h3 className="font-semibold flex items-center gap-2">
+                      <Code2 className="w-4 h-4 text-primary" /> معمل Python
+                    </h3>
+                    <Button
+                      onClick={() => window.open('/dashboard/labs/python', '_blank')}
+                      variant="outline"
+                      className="w-full"
+                    >
+                      <Code2 className="w-4 h-4 mr-2" />
+                      فتح معمل Python
+                    </Button>
+                  </div>
+                )}
+
+                {/* Roblox Lab */}
+                {openLesson.roblox_enabled && (
+                  <div className="space-y-2">
+                    <h3 className="font-semibold flex items-center gap-2">
+                      <Code2 className="w-4 h-4 text-primary" /> معمل Roblox
+                    </h3>
+                    <Button
+                      onClick={() => window.open('/dashboard/labs/roblox', '_blank')}
+                      variant="outline"
+                      className="w-full"
+                    >
+                      <Code2 className="w-4 h-4 mr-2" />
+                      فتح معمل Roblox
+                    </Button>
+                  </div>
+                )}
+
+                {/* Minecraft Lab */}
+                {openLesson.minecraft_enabled && (
+                  <div className="space-y-2">
+                    <h3 className="font-semibold flex items-center gap-2">
+                      <Code2 className="w-4 h-4 text-primary" /> معمل Minecraft
+                    </h3>
+                    <Button
+                      onClick={() => window.open('/dashboard/labs/minecraft', '_blank')}
+                      variant="outline"
+                      className="w-full"
+                    >
+                      <Code2 className="w-4 h-4 mr-2" />
+                      فتح معمل Minecraft
+                    </Button>
+                  </div>
+                )}
+
                 {/* No content message */}
-                {!openLesson.video_url && !openLesson.content && !openLesson.scratch_enabled && (
+                {!openLesson.video_url && !openLesson.content && !openLesson.scratch_enabled && !openLesson.python_enabled && !openLesson.roblox_enabled && !openLesson.minecraft_enabled && (
                   <div className="text-center py-8 text-muted-foreground">
                     <FileText className="w-10 h-10 mx-auto mb-2 opacity-50" />
                     <p>لا يوجد محتوى لهذا الدرس بعد</p>
