@@ -1,6 +1,8 @@
+import { useEffect, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ExternalLink, Blocks, Lightbulb, Star, Zap, Target, Rocket, BookOpen, Code2 } from 'lucide-react';
+import { useGamification, POINTS_CONFIG } from '@/hooks/useGamification';
 
 const MINECRAFT_EDU_URL = 'https://education.minecraft.net/';
 const MAKECODE_URL = 'https://minecraft.makecode.com/';
@@ -15,6 +17,16 @@ const tips = [
 ];
 
 const MinecraftLabPage = () => {
+  const { awardPoints } = useGamification();
+  const awarded = useRef(false);
+
+  useEffect(() => {
+    if (!awarded.current) {
+      awarded.current = true;
+      awardPoints(POINTS_CONFIG.minecraft_visit, 'Visited Minecraft Lab', 'minecraft');
+    }
+  }, []);
+
   const openMakeCode = () => {
     window.open(MAKECODE_URL, '_blank', 'noopener,noreferrer');
   };

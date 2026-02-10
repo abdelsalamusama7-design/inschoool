@@ -374,6 +374,33 @@ export type Database = {
           },
         ]
       }
+      student_badges: {
+        Row: {
+          badge_icon: string
+          badge_key: string
+          badge_name: string
+          earned_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_icon?: string
+          badge_key: string
+          badge_name: string
+          earned_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_icon?: string
+          badge_key?: string
+          badge_name?: string
+          earned_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       student_parent_links: {
         Row: {
           created_at: string
@@ -392,6 +419,33 @@ export type Database = {
           id?: string
           parent_id?: string
           student_id?: string
+        }
+        Relationships: []
+      }
+      student_points: {
+        Row: {
+          created_at: string
+          id: string
+          lab_type: string
+          points: number
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lab_type: string
+          points?: number
+          reason: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lab_type?: string
+          points?: number
+          reason?: string
+          user_id?: string
         }
         Relationships: []
       }
