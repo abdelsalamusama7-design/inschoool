@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import WeeklyScheduleView from '@/components/dashboard/WeeklyScheduleView';
+import UpcomingSessions from '@/components/dashboard/UpcomingSessions';
 
 interface LinkedStudent {
   id: string;
@@ -520,6 +521,9 @@ const StudentFullView = ({ student, data }: StudentFullViewProps) => {
           </CardContent>
         </Card>
       )}
+
+      {/* Upcoming Live Sessions */}
+      <UpcomingSessions courseIds={courseIds} />
 
       {/* Weekly Schedule */}
       <WeeklyScheduleView
