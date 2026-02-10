@@ -18,6 +18,7 @@ import SchedulePage from "./pages/SchedulePage";
 import StudentsPage from "./pages/StudentsPage";
 import ProgressPage from "./pages/ProgressPage";
 import LabPage from "./pages/LabPage";
+import LeaderboardPage from "./pages/LeaderboardPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -117,6 +118,14 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={['student', 'instructor']}>
                   <LabPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/leaderboard"
+              element={
+                <ProtectedRoute>
+                  <LeaderboardPage />
                 </ProtectedRoute>
               }
             />
