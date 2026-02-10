@@ -79,7 +79,11 @@ const UpcomingSessions = ({ courseIds }: UpcomingSessionsProps) => {
                       </span>
                     </div>
                   </div>
-                  <Button size="sm" onClick={() => window.open(session.meeting_url, '_blank')} className={live ? 'bg-green-600 hover:bg-green-700' : ''}>
+                  <Button size="sm" onClick={() => {
+                    let url = session.meeting_url;
+                    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+                    window.open(url, '_blank');
+                  }} className={live ? 'bg-green-600 hover:bg-green-700' : ''}>
                     <ExternalLink className="w-4 h-4 mr-1" />
                     {live ? 'انضم الآن' : 'فتح الرابط'}
                   </Button>
