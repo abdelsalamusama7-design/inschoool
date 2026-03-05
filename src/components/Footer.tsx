@@ -119,6 +119,32 @@ const Footer = () => {
           </p>
         </div>
       </div>
+
+      {/* Credit */}
+      <div className="border-t border-border bg-muted/50">
+        <div className="container mx-auto flex flex-col items-center gap-2 py-5 text-center">
+          <p className="text-sm font-semibold text-foreground">
+            تنفيذ وتصميم{" "}
+            <span className="text-primary font-bold">Instatech Labs</span>
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-muted-foreground">
+            <a href="tel:01227080430" className="hover:text-primary transition-colors">
+              <Phone className="inline h-3 w-3 mr-1" />
+              01227080430
+            </a>
+            <span className="text-border">|</span>
+            <a href="tel:01554945448" className="hover:text-primary transition-colors">
+              <Phone className="inline h-3 w-3 mr-1" />
+              01554945448
+            </a>
+            <span className="text-border">|</span>
+            <a href="tel:01107157075" className="hover:text-primary transition-colors">
+              <Phone className="inline h-3 w-3 mr-1" />
+              01107157075
+            </a>
+          </div>
+        </div>
+      </div>
     </footer>
   );
 };
