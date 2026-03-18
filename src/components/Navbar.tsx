@@ -9,7 +9,7 @@ const Navbar = () => {
 
   const navLinks = [
     { name: "المميزات", href: "#features" },
-    { name: "لماذا In School", href: "#why" },
+    { name: "لماذا Instatech Academy", href: "#why" },
     { name: "آراء العملاء", href: "#testimonials" },
   ];
 
