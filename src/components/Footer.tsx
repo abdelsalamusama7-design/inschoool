@@ -38,7 +38,7 @@ const Footer = () => {
               </span>
             </Link>
             <p className="mb-6 text-muted-foreground">
-              نبني قادة التكنولوجيا في الغد من خلال تعليم البرمجة للأطفال والشباب
+            نبني قادة التكنولوجيا في الغد من خلال تعليم البرمجة للأطفال والشباب
             </p>
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-3 text-muted-foreground">
