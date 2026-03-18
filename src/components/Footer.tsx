@@ -33,12 +33,12 @@ const Footer = () => {
                 <GraduationCap className="h-6 w-6 text-primary-foreground" />
               </div>
               <span className="text-2xl font-bold">
-                <span className="text-secondary">In</span>
-                <span className="text-primary">School</span>
+              <span className="text-secondary">Instatech</span>
+                <span className="text-primary">-Academy</span>
               </span>
             </Link>
             <p className="mb-6 text-muted-foreground">
-              نبني قادة التكنولوجيا في الغد من خلال تعليم البرمجة للأطفال والشباب
+            نبني قادة التكنولوجيا في الغد من خلال تعليم البرمجة للأطفال والشباب
             </p>
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-3 text-muted-foreground">
@@ -115,7 +115,7 @@ const Footer = () => {
       <div className="border-t border-border">
         <div className="container mx-auto flex flex-col items-center justify-between gap-4 py-6 md:flex-row">
           <p className="text-sm text-muted-foreground">
-            © 2024 In School. جميع الحقوق محفوظة.
+            © 2024 Instatech Academy. جميع الحقوق محفوظة.
           </p>
         </div>
       </div>

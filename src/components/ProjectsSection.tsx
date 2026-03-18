@@ -42,7 +42,7 @@ const ProjectsSection = () => {
             اكتشف <span className="text-secondary">+60,000</span> مشروع طلابي
           </h2>
           <p className="text-lg text-muted-foreground">
-            استكشف هذه المشاريع من طلاب In School من أكثر من 20 دولة
+            استكشف هذه المشاريع من طلاب Instatech Academy من أكثر من 20 دولة
           </p>
         </div>
 

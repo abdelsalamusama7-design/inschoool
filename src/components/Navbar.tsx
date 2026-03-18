@@ -9,7 +9,7 @@ const Navbar = () => {
 
   const navLinks = [
     { name: "المميزات", href: "#features" },
-    { name: "لماذا In School", href: "#why" },
+    { name: "لماذا Instatech Academy", href: "#why" },
     { name: "آراء العملاء", href: "#testimonials" },
   ];
 
@@ -23,8 +23,8 @@ const Navbar = () => {
               <GraduationCap className="h-6 w-6 text-primary-foreground" />
             </div>
             <span className="text-2xl font-bold">
-              <span className="text-secondary">In</span>
-              <span className="text-primary">School</span>
+              <span className="text-secondary">Instatech</span>
+              <span className="text-primary">-Academy</span>
             </span>
           </Link>
 

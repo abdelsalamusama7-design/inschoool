@@ -18,7 +18,7 @@ const CTASection = () => {
               ابدأ رحلة طفلك التقنية اليوم
             </h2>
             <p className="mx-auto mb-8 max-w-2xl text-lg text-primary-foreground/90">
-              احجز جلسة تجريبية مجانية واكتشف كيف يمكن لـ In School أن يساعد طفلك في بناء مستقبله التقني
+              احجز جلسة تجريبية مجانية واكتشف كيف يمكن لـ Instatech Academy أن يساعد طفلك في بناء مستقبله التقني
             </p>
             <Button size="lg" className="gradient-orange gap-2 text-lg" asChild>
               <a href="https://docs.google.com/forms/d/e/1FAIpQLScMCHcf05VturMfaIkoCx_cvRZ3YpuBws5pMFdgklog0mUMpA/viewform?usp=header" target="_blank" rel="noopener noreferrer">
