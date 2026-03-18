@@ -28,7 +28,7 @@ const WhySection = () => {
     <section id="why" className="bg-muted/30 py-20" dir="rtl">
       <div className="container mx-auto">
         <h2 className="mb-12 text-center text-3xl font-bold md:text-4xl">
-          لماذا <span className="text-primary">In School</span>؟
+          لماذا <span className="text-primary">Instatech Academy</span>؟
         </h2>
 
         <div className="grid gap-6 md:grid-cols-2">

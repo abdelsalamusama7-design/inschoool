@@ -108,7 +108,7 @@ const Auth = () => {
             </Link>
           </div>
           <Link to="/" className="hover:opacity-80 transition-opacity">
-            <CardTitle className="text-2xl font-bold cursor-pointer">In School</CardTitle>
+            <CardTitle className="text-2xl font-bold cursor-pointer">Instatech Academy</CardTitle>
           </Link>
           <CardDescription>Educational platform for kids aged 6-18</CardDescription>
           <Button variant="ghost" size="sm" className="mt-2" asChild>

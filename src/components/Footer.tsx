@@ -115,7 +115,7 @@ const Footer = () => {
       <div className="border-t border-border">
         <div className="container mx-auto flex flex-col items-center justify-between gap-4 py-6 md:flex-row">
           <p className="text-sm text-muted-foreground">
-            © 2024 In School. جميع الحقوق محفوظة.
+            © 2024 Instatech Academy. جميع الحقوق محفوظة.
           </p>
         </div>
       </div>

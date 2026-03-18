@@ -6,7 +6,7 @@ const WhatsAppIcon = () => (
 
 const WhatsAppButton = () => {
   const phoneNumber = "201107157075";
-  const message = "مرحباً، أريد الاستفسار عن دورات In School";
+  const message = "مرحباً، أريد الاستفسار عن دورات Instatech Academy";
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
 
   return (
