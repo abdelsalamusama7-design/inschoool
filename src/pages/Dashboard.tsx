@@ -3,6 +3,7 @@ import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import StudentDashboard from './dashboard/StudentDashboard';
 import ParentDashboard from './dashboard/ParentDashboard';
 import InstructorDashboard from './dashboard/InstructorDashboard';
+import AdminDashboard from './dashboard/AdminDashboard';
 
 const Dashboard = () => {
   const { role, loading } = useAuth();
@@ -23,6 +24,8 @@ const Dashboard = () => {
         return <ParentDashboard />;
       case 'instructor':
         return <InstructorDashboard />;
+      case 'admin':
+        return <AdminDashboard />;
       default:
         return <div>Unknown role</div>;
     }

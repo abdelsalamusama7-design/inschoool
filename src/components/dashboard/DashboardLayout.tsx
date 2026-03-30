@@ -154,6 +154,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       case 'student': return 'Student';
       case 'parent': return 'Parent';
       case 'instructor': return 'Instructor';
+      case 'admin': return 'Admin';
       default: return 'User';
     }
   };

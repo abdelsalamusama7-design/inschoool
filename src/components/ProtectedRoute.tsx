@@ -21,7 +21,8 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
     return <Navigate to="/auth" replace />;
   }
 
-  if (allowedRoles && role && !allowedRoles.includes(role)) {
+  // Admin can access everything
+  if (allowedRoles && role && role !== 'admin' && !allowedRoles.includes(role)) {
     return <Navigate to="/dashboard" replace />;
   }
 
