@@ -130,7 +130,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   };
 
   const getLabItems = (): LabItem[] => {
-    if (role === 'student' || role === 'instructor') {
+    if (role === 'student' || role === 'instructor' || role === 'admin') {
       return [
         { title: 'Scratch Lab', icon: Code2, url: '/dashboard/labs/scratch' },
         { title: 'Python Lab', icon: Terminal, url: '/dashboard/labs/python' },
