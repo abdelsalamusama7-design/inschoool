@@ -699,7 +699,7 @@ export type Database = {
     }
     Enums: {
       age_group: "6-8" | "9-12" | "13-15" | "16-18"
-      app_role: "student" | "parent" | "instructor"
+      app_role: "student" | "parent" | "instructor" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -828,7 +828,7 @@ export const Constants = {
   public: {
     Enums: {
       age_group: ["6-8", "9-12", "13-15", "16-18"],
-      app_role: ["student", "parent", "instructor"],
+      app_role: ["student", "parent", "instructor", "admin"],
     },
   },
 } as const
