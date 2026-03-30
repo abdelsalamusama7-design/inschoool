@@ -3,7 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  allowedRoles?: ('student' | 'parent' | 'instructor')[];
+  allowedRoles?: ('student' | 'parent' | 'instructor' | 'admin')[];
 }
 
 const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
@@ -21,7 +21,8 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
     return <Navigate to="/auth" replace />;
   }
 
-  if (allowedRoles && role && !allowedRoles.includes(role)) {
+  // Admin can access everything
+  if (allowedRoles && role && role !== 'admin' && !allowedRoles.includes(role)) {
     return <Navigate to="/dashboard" replace />;
   }
 
