@@ -94,29 +94,16 @@ const AdminDashboard = () => {
 
     setCreating(true);
     try {
-      // Sign up the new admin
-      const { data, error } = await supabase.auth.signUp({
-        email: newAdminEmail,
-        password: newAdminPassword,
+      const { data, error } = await supabase.functions.invoke('create-admin', {
+        body: {
+          email: newAdminEmail,
+          password: newAdminPassword,
+          full_name: newAdminName,
+        },
       });
 
       if (error) throw error;
-      if (!data.user) throw new Error('Failed to create user');
-
-      // Create profile
-      const { error: profileError } = await supabase.from('profiles').insert({
-        user_id: data.user.id,
-        full_name: newAdminName,
-        email: newAdminEmail,
-      });
-      if (profileError) throw profileError;
-
-      // Create admin role
-      const { error: roleError } = await supabase.from('user_roles').insert({
-        user_id: data.user.id,
-        role: 'admin' as any,
-      });
-      if (roleError) throw roleError;
+      if (data?.error) throw new Error(data.error);
 
       toast.success('تم إنشاء حساب الأدمن بنجاح!');
       setDialogOpen(false);
