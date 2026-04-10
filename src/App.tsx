@@ -22,6 +22,7 @@ import LeaderboardPage from "./pages/LeaderboardPage";
 import LessonsManagementPage from "./pages/LessonsManagementPage";
 import LiveSessionsPage from "./pages/LiveSessionsPage";
 import TutorialVideosPage from "./pages/TutorialVideosPage";
+import UserManagementPage from "./pages/UserManagementPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -153,6 +154,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <LeaderboardPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/users"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <UserManagementPage />
                 </ProtectedRoute>
               }
             />
