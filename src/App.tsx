@@ -157,6 +157,14 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/dashboard/users"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <UserManagementPage />
+                </ProtectedRoute>
+              }
+            />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
