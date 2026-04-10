@@ -16,9 +16,23 @@ serve(async (req) => {
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-    const { email, password, full_name } = await req.json();
+    const { email, password, full_name, action } = await req.json();
 
-    // Create user via admin API
+    // Action: reset_password - update existing user's password
+    if (action === "reset_password") {
+      const { data: users } = await supabase.auth.admin.listUsers();
+      const existingUser = users?.users?.find((u: any) => u.email === email);
+      if (!existingUser) throw new Error("User not found");
+      
+      const { error } = await supabase.auth.admin.updateUserById(existingUser.id, { password });
+      if (error) throw error;
+      
+      return new Response(JSON.stringify({ success: true, message: "Password updated" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Default: create new admin
     const { data: userData, error: userError } = await supabase.auth.admin.createUser({
       email,
       password,
@@ -29,7 +43,6 @@ serve(async (req) => {
 
     const userId = userData.user.id;
 
-    // Create profile
     const { error: profileError } = await supabase.from("profiles").insert({
       user_id: userId,
       full_name,
@@ -37,7 +50,6 @@ serve(async (req) => {
     });
     if (profileError) throw profileError;
 
-    // Create admin role
     const { error: roleError } = await supabase.from("user_roles").insert({
       user_id: userId,
       role: "admin",
