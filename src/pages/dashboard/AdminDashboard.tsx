@@ -44,6 +44,13 @@ const AdminDashboard = () => {
   const [newAdminName, setNewAdminName] = useState('');
   const [creating, setCreating] = useState(false);
 
+  // Instructor creation state
+  const [instructorDialogOpen, setInstructorDialogOpen] = useState(false);
+  const [newInstructorEmail, setNewInstructorEmail] = useState('');
+  const [newInstructorPassword, setNewInstructorPassword] = useState('');
+  const [newInstructorName, setNewInstructorName] = useState('');
+  const [creatingInstructor, setCreatingInstructor] = useState(false);
+
   useEffect(() => {
     if (user) fetchStats();
   }, [user]);
