@@ -311,7 +311,7 @@ const LiveSessionsManagement = () => {
 
       {/* Create/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editSession ? 'تعديل المحاضرة' : 'إنشاء محاضرة جديدة'}</DialogTitle>
             <DialogDescription>
