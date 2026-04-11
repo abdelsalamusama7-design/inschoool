@@ -56,7 +56,7 @@ const App = () => (
             <Route
               path="/dashboard/courses/new"
               element={
-                <ProtectedRoute allowedRoles={['instructor']}>
+                <ProtectedRoute allowedRoles={['instructor', 'admin']}>
                   <CreateCoursePage />
                 </ProtectedRoute>
               }
@@ -80,7 +80,7 @@ const App = () => (
             <Route
               path="/dashboard/admin/subscriptions"
               element={
-                <ProtectedRoute allowedRoles={['instructor']}>
+                <ProtectedRoute allowedRoles={['instructor', 'admin']}>
                   <AdminSubscriptionsPage />
                 </ProtectedRoute>
               }
@@ -88,7 +88,7 @@ const App = () => (
             <Route
               path="/dashboard/curriculum-generator"
               element={
-                <ProtectedRoute allowedRoles={['instructor']}>
+                <ProtectedRoute allowedRoles={['instructor', 'admin']}>
                   <CurriculumGeneratorPage />
                 </ProtectedRoute>
               }
@@ -96,7 +96,7 @@ const App = () => (
             <Route
               path="/dashboard/schedule"
               element={
-                <ProtectedRoute allowedRoles={['instructor']}>
+                <ProtectedRoute allowedRoles={['instructor', 'admin']}>
                   <SchedulePage />
                 </ProtectedRoute>
               }
@@ -104,7 +104,7 @@ const App = () => (
             <Route
               path="/dashboard/students"
               element={
-                <ProtectedRoute allowedRoles={['instructor']}>
+                <ProtectedRoute allowedRoles={['instructor', 'admin']}>
                   <StudentsPage />
                 </ProtectedRoute>
               }
@@ -112,7 +112,7 @@ const App = () => (
             <Route
               path="/dashboard/lessons"
               element={
-                <ProtectedRoute allowedRoles={['instructor']}>
+                <ProtectedRoute allowedRoles={['instructor', 'admin']}>
                   <LessonsManagementPage />
                 </ProtectedRoute>
               }
@@ -120,7 +120,7 @@ const App = () => (
             <Route
               path="/dashboard/live-sessions"
               element={
-                <ProtectedRoute allowedRoles={['instructor']}>
+                <ProtectedRoute allowedRoles={['instructor', 'admin']}>
                   <LiveSessionsPage />
                 </ProtectedRoute>
               }
@@ -128,7 +128,7 @@ const App = () => (
             <Route
               path="/dashboard/tutorial-videos"
               element={
-                <ProtectedRoute allowedRoles={['instructor']}>
+                <ProtectedRoute allowedRoles={['instructor', 'admin']}>
                   <TutorialVideosPage />
                 </ProtectedRoute>
               }
@@ -144,7 +144,7 @@ const App = () => (
             <Route
               path="/dashboard/labs/:labType"
               element={
-                <ProtectedRoute allowedRoles={['student', 'instructor']}>
+                <ProtectedRoute allowedRoles={['student', 'instructor', 'admin']}>
                   <LabPage />
                 </ProtectedRoute>
               }
