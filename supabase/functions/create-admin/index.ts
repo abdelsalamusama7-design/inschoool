@@ -16,7 +16,7 @@ serve(async (req) => {
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-    const { email, password, full_name, action } = await req.json();
+    const { email, password, full_name, action, role } = await req.json();
 
     // Action: reset_password - update existing user's password
     if (action === "reset_password") {
@@ -32,7 +32,12 @@ serve(async (req) => {
       });
     }
 
-    // Default: create new admin
+    // Determine the role to assign (default: admin)
+    const assignRole = role || "admin";
+    const validRoles = ["admin", "instructor", "student", "parent"];
+    if (!validRoles.includes(assignRole)) throw new Error("Invalid role");
+
+    // Create new user
     const { data: userData, error: userError } = await supabase.auth.admin.createUser({
       email,
       password,
@@ -52,7 +57,7 @@ serve(async (req) => {
 
     const { error: roleError } = await supabase.from("user_roles").insert({
       user_id: userId,
-      role: "admin",
+      role: assignRole,
     });
     if (roleError) throw roleError;
 
