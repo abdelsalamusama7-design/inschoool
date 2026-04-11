@@ -129,6 +129,48 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleCreateInstructor = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newInstructorEmail || !newInstructorPassword || !newInstructorName) {
+      toast.error('يرجى ملء جميع الحقول');
+      return;
+    }
+    if (newInstructorPassword.length < 6) {
+      toast.error('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+      return;
+    }
+
+    setCreatingInstructor(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-admin', {
+        body: {
+          email: newInstructorEmail,
+          password: newInstructorPassword,
+          full_name: newInstructorName,
+          role: 'instructor',
+        },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      toast.success('تم إنشاء حساب المحاضر بنجاح!');
+      setInstructorDialogOpen(false);
+      setNewInstructorEmail('');
+      setNewInstructorPassword('');
+      setNewInstructorName('');
+      fetchStats();
+    } catch (error: any) {
+      if (error.message?.includes('already registered')) {
+        toast.error('هذا البريد الإلكتروني مسجل بالفعل');
+      } else {
+        toast.error(error.message || 'حدث خطأ أثناء إنشاء الحساب');
+      }
+    } finally {
+      setCreatingInstructor(false);
+    }
+  };
+
   if (loading) {
     return <div className="flex items-center justify-center p-8">Loading...</div>;
   }
@@ -144,58 +186,108 @@ const AdminDashboard = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
           <h1 className="text-3xl font-bold">لوحة تحكم الأدمن</h1>
           <p className="text-muted-foreground">مرحباً! لديك صلاحيات كاملة للتحكم في المنصة</p>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <UserPlus className="w-4 h-4 mr-2" />
-              إنشاء حساب أدمن جديد
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>إنشاء حساب أدمن جديد</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleCreateAdmin} className="space-y-4">
-              <div className="space-y-2">
-                <Label>الاسم الكامل</Label>
-                <Input
-                  value={newAdminName}
-                  onChange={(e) => setNewAdminName(e.target.value)}
-                  placeholder="أدخل الاسم الكامل"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>البريد الإلكتروني</Label>
-                <Input
-                  type="email"
-                  value={newAdminEmail}
-                  onChange={(e) => setNewAdminEmail(e.target.value)}
-                  placeholder="أدخل البريد الإلكتروني"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>كلمة المرور</Label>
-                <Input
-                  type="password"
-                  value={newAdminPassword}
-                  onChange={(e) => setNewAdminPassword(e.target.value)}
-                  placeholder="أدخل كلمة المرور (6 أحرف على الأقل)"
-                  required
-                />
-              </div>
-              <Button type="submit" className="w-full" disabled={creating}>
-                {creating ? 'جاري الإنشاء...' : 'إنشاء حساب الأدمن'}
+        <div className="flex gap-2">
+          <Dialog open={instructorDialogOpen} onOpenChange={setInstructorDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <UserPlus className="w-4 h-4 mr-2" />
+                إنشاء حساب محاضر
               </Button>
-            </form>
-          </DialogContent>
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>إنشاء حساب محاضر جديد</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleCreateInstructor} className="space-y-4">
+                <div className="space-y-2">
+                  <Label>الاسم الكامل</Label>
+                  <Input
+                    value={newInstructorName}
+                    onChange={(e) => setNewInstructorName(e.target.value)}
+                    placeholder="أدخل الاسم الكامل"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>البريد الإلكتروني</Label>
+                  <Input
+                    type="email"
+                    value={newInstructorEmail}
+                    onChange={(e) => setNewInstructorEmail(e.target.value)}
+                    placeholder="أدخل البريد الإلكتروني"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>كلمة المرور</Label>
+                  <Input
+                    type="password"
+                    value={newInstructorPassword}
+                    onChange={(e) => setNewInstructorPassword(e.target.value)}
+                    placeholder="أدخل كلمة المرور (6 أحرف على الأقل)"
+                    required
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={creatingInstructor}>
+                  {creatingInstructor ? 'جاري الإنشاء...' : 'إنشاء حساب المحاضر'}
+                </Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <UserPlus className="w-4 h-4 mr-2" />
+                إنشاء حساب أدمن
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>إنشاء حساب أدمن جديد</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleCreateAdmin} className="space-y-4">
+                <div className="space-y-2">
+                  <Label>الاسم الكامل</Label>
+                  <Input
+                    value={newAdminName}
+                    onChange={(e) => setNewAdminName(e.target.value)}
+                    placeholder="أدخل الاسم الكامل"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>البريد الإلكتروني</Label>
+                  <Input
+                    type="email"
+                    value={newAdminEmail}
+                    onChange={(e) => setNewAdminEmail(e.target.value)}
+                    placeholder="أدخل البريد الإلكتروني"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>كلمة المرور</Label>
+                  <Input
+                    type="password"
+                    value={newAdminPassword}
+                    onChange={(e) => setNewAdminPassword(e.target.value)}
+                    placeholder="أدخل كلمة المرور (6 أحرف على الأقل)"
+                    required
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={creating}>
+                  {creating ? 'جاري الإنشاء...' : 'إنشاء حساب الأدمن'}
+                </Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
