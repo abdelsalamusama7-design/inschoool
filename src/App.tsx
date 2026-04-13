@@ -23,6 +23,8 @@ import LessonsManagementPage from "./pages/LessonsManagementPage";
 import LiveSessionsPage from "./pages/LiveSessionsPage";
 import TutorialVideosPage from "./pages/TutorialVideosPage";
 import UserManagementPage from "./pages/UserManagementPage";
+import ExamsPage from "./pages/ExamsPage";
+import TakeExamPage from "./pages/dashboard/TakeExamPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -162,6 +164,22 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={['admin']}>
                   <UserManagementPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/exams"
+              element={
+                <ProtectedRoute allowedRoles={['instructor', 'admin']}>
+                  <ExamsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/exams/:examId/take"
+              element={
+                <ProtectedRoute allowedRoles={['student']}>
+                  <TakeExamPage />
                 </ProtectedRoute>
               }
             />
