@@ -10,7 +10,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
-import { Clock, CheckCircle, AlertTriangle, Loader2 } from 'lucide-react';
+import { Clock, CheckCircle, AlertTriangle, Loader2, Award } from 'lucide-react';
 
 interface Question {
   id: string;
@@ -222,6 +222,14 @@ const TakeExamPage = () => {
               <Badge variant={percentage >= 50 ? 'default' : 'destructive'} className="text-lg px-4 py-1">
                 {percentage >= 90 ? 'ممتاز! 🌟' : percentage >= 75 ? 'جيد جداً 👏' : percentage >= 50 ? 'جيد ✅' : 'يحتاج تحسين 📚'}
               </Badge>
+              {exam?.exam_type === 'final' && percentage >= 50 && (
+                <div className="pt-2">
+                  <p className="text-green-600 font-semibold mb-2">🎉 تهانينا! حصلت على شهادة إتمام الدورة</p>
+                  <Button variant="outline" onClick={() => navigate('/dashboard/certificates')}>
+                    <Award className="w-4 h-4 ml-2" />عرض الشهادات
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
           <Button onClick={() => navigate('/dashboard')}>العودة للوحة التحكم</Button>
