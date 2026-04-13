@@ -27,6 +27,9 @@ interface ExamData {
   description: string | null;
   duration_minutes: number;
   lesson_id: string;
+  exam_type: string;
+  course_id: string | null;
+  courses: { title: string } | null;
 }
 
 const TakeExamPage = () => {
