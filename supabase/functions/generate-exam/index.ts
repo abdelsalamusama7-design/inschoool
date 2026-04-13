@@ -19,7 +19,6 @@ serve(async (req) => {
 
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
     if (!apiKey) throw new Error("LOVABLE_API_KEY is not configured");
-    console.log("API Key length:", apiKey.length, "starts with:", apiKey.substring(0, 8));
 
     const examTypeLabel = exam_type === 'midterm' ? 'نصفي (منتصف الدورة)' : 'نهائي (نهاية الدورة)';
     const lessonsContext = lessons_titles?.length
