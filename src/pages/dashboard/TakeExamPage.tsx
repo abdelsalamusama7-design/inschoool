@@ -156,6 +156,29 @@ const TakeExamPage = () => {
 
       if (error) throw error;
 
+      // Auto-generate certificate if final exam and passed (>= 50%)
+      const percentage = totalPoints > 0 ? Math.round((calculatedScore / totalPoints) * 100) : 0;
+      if (exam?.exam_type === 'final' && percentage >= 50 && exam?.course_id) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('user_id', user!.id)
+          .single();
+
+        const courseTitle = exam.courses?.title || 'دورة';
+        const studentName = profile?.full_name || 'طالب';
+
+        await supabase.from('certificates').insert({
+          user_id: user!.id,
+          course_id: exam.course_id,
+          exam_id: examId!,
+          student_name: studentName,
+          course_title: courseTitle,
+          score: calculatedScore,
+          total_points: totalPoints,
+        });
+      }
+
       setScore(calculatedScore);
       setSubmitted(true);
       if (autoSubmit) {
@@ -168,7 +191,7 @@ const TakeExamPage = () => {
     } finally {
       setSubmitting(false);
     }
-  }, [submitted, submitting, answers, examId, user, totalPoints]);
+  }, [submitted, submitting, answers, examId, user, totalPoints, exam]);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
