@@ -207,39 +207,52 @@ export type Database = {
       }
       exams: {
         Row: {
+          course_id: string | null
           created_at: string
           created_by: string
           description: string | null
           duration_minutes: number
+          exam_type: Database["public"]["Enums"]["exam_type"]
           id: string
           is_published: boolean
-          lesson_id: string
+          lesson_id: string | null
           title: string
           updated_at: string
         }
         Insert: {
+          course_id?: string | null
           created_at?: string
           created_by: string
           description?: string | null
           duration_minutes?: number
+          exam_type?: Database["public"]["Enums"]["exam_type"]
           id?: string
           is_published?: boolean
-          lesson_id: string
+          lesson_id?: string | null
           title: string
           updated_at?: string
         }
         Update: {
+          course_id?: string | null
           created_at?: string
           created_by?: string
           description?: string | null
           duration_minutes?: number
+          exam_type?: Database["public"]["Enums"]["exam_type"]
           id?: string
           is_published?: boolean
-          lesson_id?: string
+          lesson_id?: string | null
           title?: string
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "exams_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "exams_lesson_id_fkey"
             columns: ["lesson_id"]
@@ -832,6 +845,7 @@ export type Database = {
     Enums: {
       age_group: "6-8" | "9-12" | "13-15" | "16-18"
       app_role: "student" | "parent" | "instructor" | "admin"
+      exam_type: "midterm" | "final"
       question_type: "multiple_choice" | "true_false"
     }
     CompositeTypes: {
@@ -962,6 +976,7 @@ export const Constants = {
     Enums: {
       age_group: ["6-8", "9-12", "13-15", "16-18"],
       app_role: ["student", "parent", "instructor", "admin"],
+      exam_type: ["midterm", "final"],
       question_type: ["multiple_choice", "true_false"],
     },
   },
