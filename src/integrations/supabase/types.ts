@@ -117,6 +117,138 @@ export type Database = {
           },
         ]
       }
+      exam_questions: {
+        Row: {
+          correct_answer: string
+          created_at: string
+          exam_id: string
+          id: string
+          options: Json | null
+          order_index: number | null
+          points: number
+          question_text: string
+          question_type: Database["public"]["Enums"]["question_type"]
+        }
+        Insert: {
+          correct_answer: string
+          created_at?: string
+          exam_id: string
+          id?: string
+          options?: Json | null
+          order_index?: number | null
+          points?: number
+          question_text: string
+          question_type?: Database["public"]["Enums"]["question_type"]
+        }
+        Update: {
+          correct_answer?: string
+          created_at?: string
+          exam_id?: string
+          id?: string
+          options?: Json | null
+          order_index?: number | null
+          points?: number
+          question_text?: string
+          question_type?: Database["public"]["Enums"]["question_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_questions_exam_id_fkey"
+            columns: ["exam_id"]
+            isOneToOne: false
+            referencedRelation: "exams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exam_submissions: {
+        Row: {
+          answers: Json
+          created_at: string
+          exam_id: string
+          id: string
+          score: number | null
+          started_at: string
+          submitted_at: string | null
+          total_points: number | null
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          created_at?: string
+          exam_id: string
+          id?: string
+          score?: number | null
+          started_at?: string
+          submitted_at?: string | null
+          total_points?: number | null
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          created_at?: string
+          exam_id?: string
+          id?: string
+          score?: number | null
+          started_at?: string
+          submitted_at?: string | null
+          total_points?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_submissions_exam_id_fkey"
+            columns: ["exam_id"]
+            isOneToOne: false
+            referencedRelation: "exams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exams: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          duration_minutes: number
+          id: string
+          is_published: boolean
+          lesson_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          duration_minutes?: number
+          id?: string
+          is_published?: boolean
+          lesson_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          duration_minutes?: number
+          id?: string
+          is_published?: boolean
+          lesson_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exams_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lessons: {
         Row: {
           content: string | null
@@ -700,6 +832,7 @@ export type Database = {
     Enums: {
       age_group: "6-8" | "9-12" | "13-15" | "16-18"
       app_role: "student" | "parent" | "instructor" | "admin"
+      question_type: "multiple_choice" | "true_false"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -829,6 +962,7 @@ export const Constants = {
     Enums: {
       age_group: ["6-8", "9-12", "13-15", "16-18"],
       app_role: ["student", "parent", "instructor", "admin"],
+      question_type: ["multiple_choice", "true_false"],
     },
   },
 } as const
