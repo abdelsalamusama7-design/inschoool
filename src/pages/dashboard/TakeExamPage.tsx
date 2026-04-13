@@ -86,7 +86,7 @@ const TakeExamPage = () => {
 
     const { data: examData } = await supabase
       .from('exams')
-      .select('id, title, description, duration_minutes, lesson_id')
+      .select('id, title, description, duration_minutes, lesson_id, exam_type, course_id, courses:course_id(title)')
       .eq('id', examId!)
       .eq('is_published', true)
       .single();
