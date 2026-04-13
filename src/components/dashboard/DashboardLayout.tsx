@@ -39,6 +39,7 @@ import {
   ChevronDown,
   Trophy,
   Video,
+  Award,
 } from 'lucide-react';
 import {
   Collapsible,
@@ -99,6 +100,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         ...baseItems,
         { title: 'My Courses', icon: BookOpen, url: '/dashboard/courses' },
         { title: 'الامتحانات', icon: FileText, url: '/dashboard/student-exams' },
+        { title: 'شهاداتي', icon: Award, url: '/dashboard/certificates' },
         { title: 'Subscription', icon: Crown, url: '/dashboard/subscription' },
         { title: 'Schedule', icon: Calendar, url: '/dashboard/schedule' },
         { title: 'Progress', icon: BarChart3, url: '/dashboard/progress' },
