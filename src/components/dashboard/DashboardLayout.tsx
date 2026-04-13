@@ -98,6 +98,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       return [
         ...baseItems,
         { title: 'My Courses', icon: BookOpen, url: '/dashboard/courses' },
+        { title: 'الامتحانات', icon: FileText, url: '/dashboard/student-exams' },
         { title: 'Subscription', icon: Crown, url: '/dashboard/subscription' },
         { title: 'Schedule', icon: Calendar, url: '/dashboard/schedule' },
         { title: 'Progress', icon: BarChart3, url: '/dashboard/progress' },
