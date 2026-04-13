@@ -26,6 +26,7 @@ import UserManagementPage from "./pages/UserManagementPage";
 import ExamsPage from "./pages/ExamsPage";
 import TakeExamPage from "./pages/dashboard/TakeExamPage";
 import StudentExamsPage from "./pages/dashboard/StudentExamsPage";
+import CertificatesPage from "./pages/dashboard/CertificatesPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -189,6 +190,14 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={['student']}>
                   <StudentExamsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/certificates"
+              element={
+                <ProtectedRoute allowedRoles={['student']}>
+                  <CertificatesPage />
                 </ProtectedRoute>
               }
             />

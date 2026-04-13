@@ -10,7 +10,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
-import { Clock, CheckCircle, AlertTriangle, Loader2 } from 'lucide-react';
+import { Clock, CheckCircle, AlertTriangle, Loader2, Award } from 'lucide-react';
 
 interface Question {
   id: string;
@@ -27,6 +27,9 @@ interface ExamData {
   description: string | null;
   duration_minutes: number;
   lesson_id: string;
+  exam_type: string;
+  course_id: string | null;
+  courses: { title: string } | null;
 }
 
 const TakeExamPage = () => {
@@ -86,7 +89,7 @@ const TakeExamPage = () => {
 
     const { data: examData } = await supabase
       .from('exams')
-      .select('id, title, description, duration_minutes, lesson_id')
+      .select('id, title, description, duration_minutes, lesson_id, exam_type, course_id, courses:course_id(title)')
       .eq('id', examId!)
       .eq('is_published', true)
       .single();
@@ -153,6 +156,29 @@ const TakeExamPage = () => {
 
       if (error) throw error;
 
+      // Auto-generate certificate if final exam and passed (>= 50%)
+      const percentage = totalPoints > 0 ? Math.round((calculatedScore / totalPoints) * 100) : 0;
+      if (exam?.exam_type === 'final' && percentage >= 50 && exam?.course_id) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('user_id', user!.id)
+          .single();
+
+        const courseTitle = exam.courses?.title || 'دورة';
+        const studentName = profile?.full_name || 'طالب';
+
+        await supabase.from('certificates').insert({
+          user_id: user!.id,
+          course_id: exam.course_id,
+          exam_id: examId!,
+          student_name: studentName,
+          course_title: courseTitle,
+          score: calculatedScore,
+          total_points: totalPoints,
+        });
+      }
+
       setScore(calculatedScore);
       setSubmitted(true);
       if (autoSubmit) {
@@ -165,7 +191,7 @@ const TakeExamPage = () => {
     } finally {
       setSubmitting(false);
     }
-  }, [submitted, submitting, answers, examId, user, totalPoints]);
+  }, [submitted, submitting, answers, examId, user, totalPoints, exam]);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -196,6 +222,14 @@ const TakeExamPage = () => {
               <Badge variant={percentage >= 50 ? 'default' : 'destructive'} className="text-lg px-4 py-1">
                 {percentage >= 90 ? 'ممتاز! 🌟' : percentage >= 75 ? 'جيد جداً 👏' : percentage >= 50 ? 'جيد ✅' : 'يحتاج تحسين 📚'}
               </Badge>
+              {exam?.exam_type === 'final' && percentage >= 50 && (
+                <div className="pt-2">
+                  <p className="text-green-600 font-semibold mb-2">🎉 تهانينا! حصلت على شهادة إتمام الدورة</p>
+                  <Button variant="outline" onClick={() => navigate('/dashboard/certificates')}>
+                    <Award className="w-4 h-4 ml-2" />عرض الشهادات
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
           <Button onClick={() => navigate('/dashboard')}>العودة للوحة التحكم</Button>
