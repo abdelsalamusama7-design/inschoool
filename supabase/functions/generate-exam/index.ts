@@ -65,7 +65,7 @@ ${lessonsContext}
         "Authorization": `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "openai/gpt-5-mini",
         messages: [
           { role: "system", content: "You are an expert exam creator. Always respond with valid JSON array only, no markdown or extra text." },
           { role: "user", content: prompt },
