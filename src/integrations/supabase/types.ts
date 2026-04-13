@@ -14,6 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
+      certificates: {
+        Row: {
+          certificate_number: string
+          course_id: string
+          course_title: string
+          created_at: string
+          exam_id: string
+          id: string
+          issued_at: string
+          score: number
+          student_name: string
+          total_points: number
+          user_id: string
+        }
+        Insert: {
+          certificate_number?: string
+          course_id: string
+          course_title: string
+          created_at?: string
+          exam_id: string
+          id?: string
+          issued_at?: string
+          score: number
+          student_name: string
+          total_points: number
+          user_id: string
+        }
+        Update: {
+          certificate_number?: string
+          course_id?: string
+          course_title?: string
+          created_at?: string
+          exam_id?: string
+          id?: string
+          issued_at?: string
+          score?: number
+          student_name?: string
+          total_points?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "certificates_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "certificates_exam_id_fkey"
+            columns: ["exam_id"]
+            isOneToOne: false
+            referencedRelation: "exams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       course_materials: {
         Row: {
           course_id: string
