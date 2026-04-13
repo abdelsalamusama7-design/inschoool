@@ -18,7 +18,7 @@ serve(async (req) => {
     }
 
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
-    if (!apiKey) throw new Error("API key not configured");
+    if (!apiKey) throw new Error("LOVABLE_API_KEY is not configured");
 
     const examTypeLabel = exam_type === 'midterm' ? 'نصفي (منتصف الدورة)' : 'نهائي (نهاية الدورة)';
     const lessonsContext = lessons_titles?.length
@@ -58,7 +58,7 @@ ${lessonsContext}
   }
 ]`;
 
-    const response = await fetch("https://ai.lovable.dev/chat/completions", {
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -75,8 +75,21 @@ ${lessonsContext}
     });
 
     if (!response.ok) {
+      if (response.status === 429) {
+        return new Response(JSON.stringify({ error: "تم تجاوز حد الطلبات، يرجى المحاولة لاحقاً" }), {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (response.status === 402) {
+        return new Response(JSON.stringify({ error: "يرجى شحن رصيد الذكاء الاصطناعي" }), {
+          status: 402,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
       const errText = await response.text();
-      throw new Error(`AI API error: ${response.status} - ${errText}`);
+      console.error("AI gateway error:", response.status, errText);
+      throw new Error(`AI API error: ${response.status}`);
     }
 
     const data = await response.json();
@@ -89,6 +102,7 @@ ${lessonsContext}
     try {
       questions = JSON.parse(content);
     } catch {
+      console.error("Failed to parse AI response:", content);
       throw new Error("Failed to parse AI response as JSON");
     }
 
@@ -100,6 +114,7 @@ ${lessonsContext}
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error: any) {
+    console.error("generate-exam error:", error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
