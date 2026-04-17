@@ -28,6 +28,7 @@ import ExamResultsPage from "./pages/dashboard/ExamResultsPage";
 import TakeExamPage from "./pages/dashboard/TakeExamPage";
 import StudentExamsPage from "./pages/dashboard/StudentExamsPage";
 import CertificatesPage from "./pages/dashboard/CertificatesPage";
+import AdminCertificatesPage from "./pages/dashboard/AdminCertificatesPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
