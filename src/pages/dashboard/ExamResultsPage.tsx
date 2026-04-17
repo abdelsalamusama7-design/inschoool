@@ -181,7 +181,7 @@ const ExamResultsPage = () => {
           </Card>
           <Card>
             <CardContent className="p-5 flex items-center gap-3">
-              <Award className="w-8 h-8 text-green-500" />
+              <Award className="w-8 h-8 text-primary" />
               <div>
                 <p className="text-sm text-muted-foreground">عدد الناجحين</p>
                 <p className="text-2xl font-bold">{stats.passed}</p>
@@ -190,7 +190,7 @@ const ExamResultsPage = () => {
           </Card>
           <Card>
             <CardContent className="p-5 flex items-center gap-3">
-              <TrendingUp className="w-8 h-8 text-blue-500" />
+              <TrendingUp className="w-8 h-8 text-primary" />
               <div>
                 <p className="text-sm text-muted-foreground">متوسط النسبة</p>
                 <p className="text-2xl font-bold">{stats.avg}%</p>
