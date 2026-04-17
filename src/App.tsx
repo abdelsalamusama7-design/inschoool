@@ -24,6 +24,7 @@ import LiveSessionsPage from "./pages/LiveSessionsPage";
 import TutorialVideosPage from "./pages/TutorialVideosPage";
 import UserManagementPage from "./pages/UserManagementPage";
 import ExamsPage from "./pages/ExamsPage";
+import ExamResultsPage from "./pages/dashboard/ExamResultsPage";
 import TakeExamPage from "./pages/dashboard/TakeExamPage";
 import StudentExamsPage from "./pages/dashboard/StudentExamsPage";
 import CertificatesPage from "./pages/dashboard/CertificatesPage";
@@ -174,6 +175,14 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={['instructor', 'admin']}>
                   <ExamsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/exam-results"
+              element={
+                <ProtectedRoute allowedRoles={['instructor', 'admin']}>
+                  <ExamResultsPage />
                 </ProtectedRoute>
               }
             />
