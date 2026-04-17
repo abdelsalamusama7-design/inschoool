@@ -211,6 +211,14 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/dashboard/admin/certificates"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'instructor']}>
+                  <AdminCertificatesPage />
+                </ProtectedRoute>
+              }
+            />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
