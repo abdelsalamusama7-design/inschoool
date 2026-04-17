@@ -3,6 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import CreateUserDialog from '@/components/dashboard/CreateUserDialog';
+import EnrollStudentDialog from '@/components/dashboard/EnrollStudentDialog';
+import AICourseGenerator from '@/components/dashboard/AICourseGenerator';
 import {
   Users,
   BookOpen,
@@ -93,6 +95,17 @@ const AdminDashboard = () => {
           <CreateUserDialog role="admin" onCreated={fetchStats} variant="default" />
         </div>
       </div>
+
+      {/* Quick admin actions */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">إجراءات سريعة</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-2">
+          <AICourseGenerator onCreated={fetchStats} />
+          <EnrollStudentDialog onEnrolled={fetchStats} />
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {statCards.map((stat) => (
