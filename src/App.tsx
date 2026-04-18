@@ -29,6 +29,7 @@ import TakeExamPage from "./pages/dashboard/TakeExamPage";
 import StudentExamsPage from "./pages/dashboard/StudentExamsPage";
 import CertificatesPage from "./pages/dashboard/CertificatesPage";
 import AdminCertificatesPage from "./pages/dashboard/AdminCertificatesPage";
+import VerifyCertificatePage from "./pages/VerifyCertificatePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,8 @@ const App = () => (
         <AuthProvider>
           <Routes>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/verify" element={<VerifyCertificatePage />} />
+            <Route path="/verify/:certNumber" element={<VerifyCertificatePage />} />
             <Route path="/auth" element={<Auth />} />
             <Route
               path="/dashboard"
