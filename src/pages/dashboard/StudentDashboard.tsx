@@ -11,6 +11,7 @@ import CodingLabsSection from '@/components/dashboard/CodingLabsSection';
 import GamificationPanel from '@/components/dashboard/GamificationPanel';
 import UpcomingSessions from '@/components/dashboard/UpcomingSessions';
 import StudentExamsAndRequests from '@/components/dashboard/StudentExamsAndRequests';
+import StudentCertificatesPanel from '@/components/dashboard/StudentCertificatesPanel';
 
 interface Course {
   id: string;
