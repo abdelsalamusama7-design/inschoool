@@ -28,7 +28,7 @@ const Dashboard = () => {
       case 'admin':
         return <AdminDashboard />;
       default:
-        return <div>Unknown role</div>;
+        return <NoRoleAssigned />;
     }
   };
 
