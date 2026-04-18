@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      certificate_settings: {
+        Row: {
+          academy_name: string | null
+          id: string
+          logo_url: string | null
+          signature_url: string | null
+          signer_name: string | null
+          signer_title: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          academy_name?: string | null
+          id?: string
+          logo_url?: string | null
+          signature_url?: string | null
+          signer_name?: string | null
+          signer_title?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          academy_name?: string | null
+          id?: string
+          logo_url?: string | null
+          signature_url?: string | null
+          signer_name?: string | null
+          signer_title?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       certificates: {
         Row: {
           certificate_number: string
