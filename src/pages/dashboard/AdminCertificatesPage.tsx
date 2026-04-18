@@ -23,6 +23,8 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
+import { printCertificate } from '@/lib/certificateTemplate';
+import CertificateSettingsCard from '@/components/dashboard/CertificateSettingsCard';
 
 interface Certificate {
   id: string;
