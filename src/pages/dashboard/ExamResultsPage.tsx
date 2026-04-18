@@ -7,8 +7,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, FileText, Download, Search, TrendingUp, Users, Award } from 'lucide-react';
+import { Loader2, FileText, Download, Search, TrendingUp, Users, Award, CheckCircle2, XCircle, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface ResultRow {
   id: string;
@@ -31,6 +33,32 @@ const ExamResultsPage = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [examFilter, setExamFilter] = useState<string>('all');
+  const [selected, setSelected] = useState<ResultRow | null>(null);
+  const [details, setDetails] = useState<{ questions: any[]; answers: Record<string, string> } | null>(null);
+  const [detailsLoading, setDetailsLoading] = useState(false);
+
+  const openDetails = async (row: ResultRow) => {
+    setSelected(row);
+    setDetails(null);
+    setDetailsLoading(true);
+    const [{ data: questions }, { data: submission }] = await Promise.all([
+      supabase
+        .from('exam_questions')
+        .select('id, question_text, question_type, options, correct_answer, points, order_index')
+        .eq('exam_id', row.exam_id)
+        .order('order_index', { ascending: true }),
+      supabase
+        .from('exam_submissions')
+        .select('answers')
+        .eq('id', row.id)
+        .maybeSingle(),
+    ]);
+    setDetails({
+      questions: (questions as any[]) || [],
+      answers: (submission?.answers as Record<string, string>) || {},
+    });
+    setDetailsLoading(false);
+  };
 
   useEffect(() => {
     if (user) fetchResults();
@@ -245,6 +273,7 @@ const ExamResultsPage = () => {
                     <TableHead>النسبة</TableHead>
                     <TableHead>الحالة</TableHead>
                     <TableHead>تاريخ التسليم</TableHead>
+                    <TableHead className="text-center">تفاصيل</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -252,7 +281,11 @@ const ExamResultsPage = () => {
                     const pct = r.total_points ? Math.round(((r.score || 0) / r.total_points) * 100) : 0;
                     const passed = pct >= 50;
                     return (
-                      <TableRow key={r.id}>
+                      <TableRow
+                        key={r.id}
+                        className="cursor-pointer hover:bg-muted/50"
+                        onClick={() => openDetails(r)}
+                      >
                         <TableCell>
                           <div className="font-medium">{r.student_name}</div>
                           <div className="text-xs text-muted-foreground">{r.student_email}</div>
@@ -274,6 +307,11 @@ const ExamResultsPage = () => {
                         <TableCell className="text-sm text-muted-foreground">
                           {r.submitted_at ? new Date(r.submitted_at).toLocaleString('ar-EG') : '—'}
                         </TableCell>
+                        <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
+                          <Button variant="ghost" size="sm" onClick={() => openDetails(r)}>
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     );
                   })}
@@ -282,6 +320,97 @@ const ExamResultsPage = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* Answer details dialog */}
+        <Dialog open={!!selected} onOpenChange={(open) => { if (!open) { setSelected(null); setDetails(null); } }}>
+          <DialogContent className="max-w-3xl max-h-[85vh]">
+            <DialogHeader>
+              <DialogTitle>تفاصيل إجابات الطالب</DialogTitle>
+              {selected && (
+                <DialogDescription className="space-y-1">
+                  <div><strong>{selected.student_name}</strong> — {selected.exam_title}</div>
+                  <div className="text-xs">
+                    الدرجة: {selected.score ?? 0}/{selected.total_points ?? 0}
+                    {selected.total_points ? ` (${Math.round(((selected.score || 0) / selected.total_points) * 100)}%)` : ''}
+                  </div>
+                </DialogDescription>
+              )}
+            </DialogHeader>
+
+            {detailsLoading || !details ? (
+              <div className="flex items-center justify-center py-10"><Loader2 className="animate-spin" /></div>
+            ) : details.questions.length === 0 ? (
+              <div className="py-10 text-center text-muted-foreground">لا توجد أسئلة لهذا الامتحان</div>
+            ) : (
+              <ScrollArea className="max-h-[60vh] pr-2">
+                <div className="space-y-4">
+                  {details.questions.map((q, idx) => {
+                    const studentAnswer = details.answers[q.id];
+                    const isCorrect = studentAnswer === q.correct_answer;
+                    const answered = studentAnswer !== undefined && studentAnswer !== null && studentAnswer !== '';
+                    const options: string[] = Array.isArray(q.options) ? q.options : [];
+                    return (
+                      <div key={q.id} className={`rounded-lg border-2 p-4 ${isCorrect ? 'border-green-500/30 bg-green-500/5' : answered ? 'border-destructive/30 bg-destructive/5' : 'border-muted bg-muted/30'}`}>
+                        <div className="flex items-start justify-between gap-3 mb-3">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Badge variant="outline">سؤال {idx + 1}</Badge>
+                              <Badge variant="secondary" className="text-xs">{q.points} نقطة</Badge>
+                              {isCorrect ? (
+                                <Badge className="bg-green-600 hover:bg-green-700 text-white"><CheckCircle2 className="w-3 h-3 ml-1" />صحيح</Badge>
+                              ) : answered ? (
+                                <Badge variant="destructive"><XCircle className="w-3 h-3 ml-1" />خطأ</Badge>
+                              ) : (
+                                <Badge variant="outline">لم يُجب</Badge>
+                              )}
+                            </div>
+                            <p className="font-medium">{q.question_text}</p>
+                          </div>
+                        </div>
+
+                        {q.question_type === 'multiple_choice' && options.length > 0 ? (
+                          <div className="space-y-1.5">
+                            {options.map((opt, i) => {
+                              const isStudent = opt === studentAnswer;
+                              const isRight = opt === q.correct_answer;
+                              return (
+                                <div
+                                  key={i}
+                                  className={`flex items-center gap-2 p-2 rounded text-sm ${
+                                    isRight ? 'bg-green-500/10 border border-green-500/30' :
+                                    isStudent ? 'bg-destructive/10 border border-destructive/30' :
+                                    'bg-background border border-border'
+                                  }`}
+                                >
+                                  {isRight && <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />}
+                                  {isStudent && !isRight && <XCircle className="w-4 h-4 text-destructive shrink-0" />}
+                                  <span className="flex-1">{opt}</span>
+                                  {isStudent && <Badge variant="outline" className="text-xs">إجابة الطالب</Badge>}
+                                  {isRight && !isStudent && <Badge variant="outline" className="text-xs">الإجابة الصحيحة</Badge>}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <div className="space-y-2 text-sm">
+                            <div className="flex items-center gap-2">
+                              <span className="text-muted-foreground min-w-24">إجابة الطالب:</span>
+                              <span className="font-medium">{answered ? studentAnswer : '— لم يُجب —'}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-muted-foreground min-w-24">الإجابة الصحيحة:</span>
+                              <span className="font-medium text-green-600">{q.correct_answer}</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </ScrollArea>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardLayout>
   );
