@@ -23,6 +23,8 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
+import { printCertificate } from '@/lib/certificateTemplate';
+import CertificateSettingsCard from '@/components/dashboard/CertificateSettingsCard';
 
 interface Certificate {
   id: string;
@@ -41,35 +43,7 @@ interface Student { user_id: string; full_name: string; email: string; }
 interface Course { id: string; title: string; }
 interface Exam { id: string; title: string; course_id: string | null; }
 
-const buildCertificateHtml = (cert: Certificate, percentage: number) => `
-<!DOCTYPE html><html dir="rtl"><head><meta charset="utf-8" /><title>شهادة - ${cert.course_title}</title>
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #f3f4f6; font-family: 'Segoe UI', Tahoma, Arial, sans-serif; }
-  .cert { width: 800px; padding: 60px; background: white; border: 8px double #d4af37; position: relative; text-align: center; }
-  .cert::before { content: ''; position: absolute; inset: 12px; border: 2px solid #d4af37; pointer-events: none; }
-  .cert h1 { color: #d4af37; font-size: 36px; margin-bottom: 8px; }
-  .cert h2 { color: #1f2937; font-size: 28px; margin: 20px 0 8px; }
-  .cert .name { color: #1e40af; font-size: 32px; font-weight: bold; margin: 16px 0; border-bottom: 2px solid #d4af37; display: inline-block; padding: 0 20px 8px; }
-  .cert .course { color: #1f2937; font-size: 24px; font-weight: 600; margin: 12px 0; }
-  .cert .score { color: #059669; font-size: 20px; margin: 12px 0; }
-  .cert .details { color: #6b7280; font-size: 14px; margin-top: 30px; }
-  .cert .number { color: #9ca3af; font-size: 12px; margin-top: 8px; }
-  @media print { body { background: white; } .cert { border-width: 4px; } }
-</style></head><body>
-<div class="cert">
-  <h1>🏆 شهادة إتمام</h1>
-  <h2>يُشهد بأن</h2>
-  <div class="name">${cert.student_name}</div>
-  <p>قد أتم بنجاح دورة</p>
-  <div class="course">${cert.course_title}</div>
-  <div class="score">بنتيجة ${percentage}% (${cert.score}/${cert.total_points})</div>
-  <div class="details">تاريخ الإصدار: ${format(new Date(cert.issued_at), 'dd MMMM yyyy', { locale: ar })}</div>
-  <div class="number">رقم الشهادة: ${cert.certificate_number}</div>
-</div>
-<script>setTimeout(() => window.print(), 500);</script>
-</body></html>`;
-
+// Certificate HTML now built from shared template (uses Supabase settings)
 const IssueCertificateDialog = ({ onIssued }: { onIssued: () => void }) => {
   const [open, setOpen] = useState(false);
   const [students, setStudents] = useState<Student[]>([]);
@@ -220,10 +194,7 @@ const ShareDialog = ({ cert, studentEmail }: { cert: Certificate; studentEmail?:
   const shareText = `🏆 مبروك ${cert.student_name}!\n\nحصلت على شهادة إتمام دورة "${cert.course_title}" بنسبة ${percentage}%.\nرقم الشهادة: ${cert.certificate_number}\n\n${publishedBase}/dashboard/certificates`;
 
   const handlePrint = () => {
-    const w = window.open('', '_blank');
-    if (!w) return;
-    w.document.write(buildCertificateHtml(cert, percentage));
-    w.document.close();
+    printCertificate(cert);
   };
 
   const handleEmail = () => {
@@ -355,6 +326,8 @@ const AdminCertificatesPage = () => {
           </div>
           <IssueCertificateDialog onIssued={fetchAll} />
         </div>
+
+        {role === 'admin' && <CertificateSettingsCard />}
 
         <Card>
           <CardHeader className="pb-3">
