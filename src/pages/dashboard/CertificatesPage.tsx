@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, Award, Download } from 'lucide-react';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
+import { printCertificate } from '@/lib/certificateTemplate';
 
 interface Certificate {
   id: string;
@@ -20,51 +21,16 @@ interface Certificate {
 }
 
 const CertificateCard = ({ cert }: { cert: Certificate }) => {
-  const certRef = useRef<HTMLDivElement>(null);
   const percentage = Math.round((cert.score / cert.total_points) * 100);
 
   const handleDownload = () => {
-    const el = certRef.current;
-    if (!el) return;
-    // Open print dialog for the certificate
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
-    printWindow.document.write(`
-      <html dir="rtl"><head><title>شهادة - ${cert.course_title}</title>
-      <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #f3f4f6; font-family: 'Segoe UI', Tahoma, Arial, sans-serif; }
-        .cert { width: 800px; padding: 60px; background: white; border: 8px double #d4af37; position: relative; text-align: center; }
-        .cert::before { content: ''; position: absolute; inset: 12px; border: 2px solid #d4af37; pointer-events: none; }
-        .cert h1 { color: #d4af37; font-size: 36px; margin-bottom: 8px; }
-        .cert h2 { color: #1f2937; font-size: 28px; margin: 20px 0 8px; }
-        .cert .name { color: #1e40af; font-size: 32px; font-weight: bold; margin: 16px 0; border-bottom: 2px solid #d4af37; display: inline-block; padding: 0 20px 8px; }
-        .cert .course { color: #1f2937; font-size: 24px; font-weight: 600; margin: 12px 0; }
-        .cert .score { color: #059669; font-size: 20px; margin: 12px 0; }
-        .cert .details { color: #6b7280; font-size: 14px; margin-top: 30px; }
-        .cert .number { color: #9ca3af; font-size: 12px; margin-top: 8px; }
-        @media print { body { background: white; } .cert { border-width: 4px; } }
-      </style></head><body>
-      <div class="cert">
-        <h1>🏆 شهادة إتمام</h1>
-        <h2>يُشهد بأن</h2>
-        <div class="name">${cert.student_name}</div>
-        <p>قد أتم بنجاح دورة</p>
-        <div class="course">${cert.course_title}</div>
-        <div class="score">بنتيجة ${percentage}% (${cert.score}/${cert.total_points})</div>
-        <div class="details">تاريخ الإصدار: ${format(new Date(cert.issued_at), 'dd MMMM yyyy', { locale: ar })}</div>
-        <div class="number">رقم الشهادة: ${cert.certificate_number}</div>
-      </div>
-      <script>setTimeout(() => window.print(), 500);</script>
-      </body></html>
-    `);
-    printWindow.document.close();
+    printCertificate(cert);
   };
 
   return (
     <Card className="overflow-hidden">
       {/* Mini certificate preview */}
-      <div ref={certRef} className="bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/30 border-b-4 border-amber-400 p-8 text-center space-y-3">
+      <div className="bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/30 border-b-4 border-amber-400 p-8 text-center space-y-3">
         <Award className="w-12 h-12 mx-auto text-amber-500" />
         <h3 className="text-xl font-bold">شهادة إتمام</h3>
         <p className="text-2xl font-bold text-primary">{cert.student_name}</p>

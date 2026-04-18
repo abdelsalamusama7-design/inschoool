@@ -327,6 +327,8 @@ const AdminCertificatesPage = () => {
           <IssueCertificateDialog onIssued={fetchAll} />
         </div>
 
+        {role === 'admin' && <CertificateSettingsCard />}
+
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center justify-between gap-3 flex-wrap">
