@@ -194,10 +194,7 @@ const ShareDialog = ({ cert, studentEmail }: { cert: Certificate; studentEmail?:
   const shareText = `🏆 مبروك ${cert.student_name}!\n\nحصلت على شهادة إتمام دورة "${cert.course_title}" بنسبة ${percentage}%.\nرقم الشهادة: ${cert.certificate_number}\n\n${publishedBase}/dashboard/certificates`;
 
   const handlePrint = () => {
-    const w = window.open('', '_blank');
-    if (!w) return;
-    w.document.write(buildCertificateHtml(cert, percentage));
-    w.document.close();
+    printCertificate(cert);
   };
 
   const handleEmail = () => {
