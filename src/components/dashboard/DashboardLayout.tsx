@@ -46,6 +46,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import NotificationBell from './NotificationBell';
 
 interface MenuItem {
   title: string;
@@ -262,6 +263,9 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <main className="flex-1 flex flex-col">
           <header className="h-14 border-b flex items-center px-4 gap-4">
             <SidebarTrigger />
+            <div className="ml-auto flex items-center gap-2">
+              <NotificationBell />
+            </div>
           </header>
           <div className="flex-1 p-6 overflow-auto">
             {children}
