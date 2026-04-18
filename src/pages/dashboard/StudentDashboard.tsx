@@ -201,6 +201,9 @@ const StudentDashboard = () => {
         </CardContent>
       </Card>
 
+      {/* Earned Certificates */}
+      <StudentCertificatesPanel />
+
       {/* Available Exams + Payment Requests */}
       <StudentExamsAndRequests />
 
