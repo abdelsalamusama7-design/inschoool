@@ -33,6 +33,32 @@ const ExamResultsPage = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [examFilter, setExamFilter] = useState<string>('all');
+  const [selected, setSelected] = useState<ResultRow | null>(null);
+  const [details, setDetails] = useState<{ questions: any[]; answers: Record<string, string> } | null>(null);
+  const [detailsLoading, setDetailsLoading] = useState(false);
+
+  const openDetails = async (row: ResultRow) => {
+    setSelected(row);
+    setDetails(null);
+    setDetailsLoading(true);
+    const [{ data: questions }, { data: submission }] = await Promise.all([
+      supabase
+        .from('exam_questions')
+        .select('id, question_text, question_type, options, correct_answer, points, order_index')
+        .eq('exam_id', row.exam_id)
+        .order('order_index', { ascending: true }),
+      supabase
+        .from('exam_submissions')
+        .select('answers')
+        .eq('id', row.id)
+        .maybeSingle(),
+    ]);
+    setDetails({
+      questions: (questions as any[]) || [],
+      answers: (submission?.answers as Record<string, string>) || {},
+    });
+    setDetailsLoading(false);
+  };
 
   useEffect(() => {
     if (user) fetchResults();
