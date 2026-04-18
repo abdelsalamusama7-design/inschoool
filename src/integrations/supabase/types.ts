@@ -967,6 +967,17 @@ export type Database = {
         }
         Returns: boolean
       }
+      verify_certificate_by_number: {
+        Args: { _cert_number: string }
+        Returns: {
+          certificate_number: string
+          course_title: string
+          issued_at: string
+          score: number
+          student_name: string
+          total_points: number
+        }[]
+      }
     }
     Enums: {
       age_group: "6-8" | "9-12" | "13-15" | "16-18"
