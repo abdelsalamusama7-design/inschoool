@@ -1,5 +1,6 @@
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
+import QRCode from 'qrcode';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface CertificateData {
@@ -40,13 +41,16 @@ export const fetchCertificateSettings = async (force = false): Promise<Certifica
   return cachedSettings;
 };
 
-export const buildCertificateHtml = (
+export const buildCertificateHtml = async (
   cert: CertificateData,
   settings: CertificateSettings
-): string => {
+): Promise<string> => {
   const percentage = Math.round((cert.score / cert.total_points) * 100);
   const academy = settings.academy_name || 'Instatech Academy';
   const dateStr = format(new Date(cert.issued_at), 'dd MMMM yyyy', { locale: ar });
+
+  const verifyUrl = `${window.location.origin}/verify/${cert.certificate_number}`;
+  const qrDataUrl = await QRCode.toDataURL(verifyUrl, { margin: 1, width: 120 });
 
   const logoBlock = settings.logo_url
     ? `<img src="${settings.logo_url}" alt="logo" class="logo" crossorigin="anonymous" />`
@@ -75,16 +79,19 @@ export const buildCertificateHtml = (
   .cert .name { color: #1e40af; font-size: 32px; font-weight: bold; margin: 14px 0; border-bottom: 2px solid #d4af37; display: inline-block; padding: 0 24px 8px; }
   .cert .course { color: #1f2937; font-size: 22px; font-weight: 600; margin: 10px 0; }
   .cert .score { color: #059669; font-size: 18px; margin: 10px 0; }
-  .footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 40px; padding: 0 20px; }
-  .signature-block { text-align: center; min-width: 200px; }
+  .footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 40px; padding: 0 20px; gap: 16px; }
+  .signature-block { text-align: center; min-width: 180px; }
   .signature { max-height: 60px; max-width: 180px; object-fit: contain; margin-bottom: 4px; }
   .signature-line { width: 180px; border-top: 1px solid #6b7280; margin-bottom: 4px; }
   .signer-name { font-weight: 600; color: #1f2937; font-size: 14px; }
   .signer-title { color: #6b7280; font-size: 12px; }
-  .date-block { text-align: center; min-width: 200px; }
+  .date-block { text-align: center; min-width: 180px; }
   .date-label { color: #6b7280; font-size: 12px; }
   .date-value { color: #1f2937; font-weight: 600; font-size: 14px; margin-top: 4px; }
-  .number { color: #9ca3af; font-size: 11px; margin-top: 16px; }
+  .qr-block { text-align: center; }
+  .qr-block img { width: 90px; height: 90px; }
+  .qr-block .qr-label { font-size: 10px; color: #6b7280; margin-top: 2px; }
+  .number { color: #9ca3af; font-size: 11px; margin-top: 16px; word-break: break-all; }
   @media print { body { background: white; padding: 0; } .cert { border-width: 4px; } }
 </style></head><body>
 <div class="cert">
@@ -101,12 +108,16 @@ export const buildCertificateHtml = (
 
   <div class="footer">
     ${signatureBlock || '<div></div>'}
+    <div class="qr-block">
+      <img src="${qrDataUrl}" alt="QR" />
+      <div class="qr-label">امسح للتحقق</div>
+    </div>
     <div class="date-block">
       <div class="date-label">تاريخ الإصدار</div>
       <div class="date-value">${dateStr}</div>
     </div>
   </div>
-  <div class="number">رقم الشهادة: ${cert.certificate_number}</div>
+  <div class="number">رقم الشهادة: ${cert.certificate_number} • تحقق على: ${window.location.origin}/verify/${cert.certificate_number}</div>
 </div>
 <script>setTimeout(() => window.print(), 600);</script>
 </body></html>`;
@@ -114,7 +125,7 @@ export const buildCertificateHtml = (
 
 export const printCertificate = async (cert: CertificateData) => {
   const settings = await fetchCertificateSettings();
-  const html = buildCertificateHtml(cert, settings);
+  const html = await buildCertificateHtml(cert, settings);
   const w = window.open('', '_blank');
   if (!w) return;
   w.document.write(html);
